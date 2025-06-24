@@ -1,0 +1,45 @@
+{
+    "content": "**:scroll: Sommaire des Règles de Nouvelle-Ère V4 :scroll:**",
+    "embeds": [
+      {
+        "description": "Cliquez sur n'importe quel titre en bleu afin d'accéder au règlement correspondant",
+        "color": 6842472,
+        "image": {
+          "url": "https://zupimages.net/up/21/03/vl8j.png"
+        }
+      },
+      {
+        "title": ":earth_africa: Règlement HRP",
+        "url": "",
+        "color": 6842472,
+        "image": {
+          "url": "https://zupimages.net/up/21/03/vl8j.png"
+        }
+      },
+      {
+        "title": ":scales: Règlement RP",
+        "url": "",
+        "color": 6842472,
+        "image": {
+          "url": "https://zupimages.net/up/21/03/vl8j.png"
+        }
+      },
+      {
+        "title": ":crossed_swords: Règlement Militaire",
+        "url": "",
+        "color": 6842472,
+        "image": {
+          "url": "https://zupimages.net/up/21/03/vl8j.png"
+        }
+      },
+      {
+        "title": ":earth_africa: Règlement Territorial",
+        "url": "",
+        "color": 6842472,
+        "image": {
+          "url": "https://zupimages.net/up/21/03/vl8j.png"
+        }
+      }
+    ],
+    "attachments": []
+  }

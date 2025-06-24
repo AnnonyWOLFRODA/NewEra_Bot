@@ -1,0 +1,40 @@
+{
+    "content": "**:crossed_swords: Règlement Militaire de Nouvelle-Ère V4 :crossed_swords:**",
+    "embeds": [
+      {
+        "title": "1. Structure et Formation de l'Armée",
+        "description": "## 1.1 : Composition de l'armée de base\nChaque État commence avec une armée composée de **5000 troupes non formées** stationnées dans des bases militaires situées dans les **deux plus grandes villes** du pays.\n- Si l'État possède une **côte** ou un **fleuve**, il aura également une base navale.\n## 1.2 : Évolution des troupes\nLes troupes peuvent progresser selon leur expérience, passant d’**inexpérimenté** à **vétéran**.\n- Deux méthodes de formation existent :\n  - **Sur le front** : Formation plus rapide mais risquée.\n  - **Dans les camps de la nation** : Formation plus longue mais sécurisée.",
+        "color": 3235328
+      },
+      {
+        "title": "2. Stratégie et Plans de Guerre",
+        "description": "## 2.1 : Plan de guerre\nLors d'une guerre, il est obligatoire de présenter un **plan de guerre** clair et détaillé.\n- Le plan doit inclure une **carte MapChart** des régions attaquées.\n- Le nombre exact de **troupes** et de **matériel** déployé doit être mentionné.\n- Après soumission, vous devez mentionner un expert militaire et attendre le bilan de la bataille.\n## 2.2 : Restrictions sur les guerres entre joueurs\nLes guerres entre joueurs ne peuvent se produire qu'après **un an d’ancienneté** dans le RP pour chaque belligérant.\n- Ces guerres se déroulent par **tours**, chaque tour représentant un pays ou un camp.\n- Chaque camp est simulé par un **MJ différent**.\n- La guerre doit être déclarée via un **communiqué officiel**, validé par le staff.",
+        "color": 3235328
+      },
+      {
+        "title": "3. Brevets et Licences Militaires",
+        "description": "## 3.1 : Utilisation des brevets militaires\nLes brevets militaires augmentent avec le temps :\n- **1ère année** : 5 brevets disponibles.\n- **2ème année** : 6 brevets.\n- **3ème année** : 7 brevets.\n- **À partir de la 4ème année** : le nombre de brevets utilisables n'augmente plus.\n## 3.2 : Soumission des brevets\nTous les brevets doivent être postés dans le salon #「:military_helmet:」brevets-militaires.\n- Un **unique post** par joueur est requis pour l’ensemble de ses brevets afin de centraliser les informations.\n- Les prix fixes des brevets doivent être respectés. Un membre du staff vérifiera chaque soumission.\n## 3.3 : Doublon de licences\nIl est possible de **copier** une licence militaire d'un autre joueur, à l'exception des **licences créées par des joueurs** (celles n’existant pas IRL), afin de ne pas voler leur travail.\n## 3.4 : Suivi des paliers\nLes **paliers technologiques** doivent être respectés lors du développement de brevets militaires.  \n- Même si une technologie est développée dans les années correspondant à un palier, elle ne sera pas automatiquement accessible.  \n  - Exemple : La **bombe nucléaire** est soumise à des restrictions strictes malgré son développement.",
+        "color": 3235328
+      },
+      {
+        "title": "4. Logistique et Gestion des Forces Armées",
+        "description": "## 4.1 : Paiement des militaires\nChaque militaire doit être **payé mensuellement**, qu’il s’agisse d’un général ou d’un simple policier.\n- Un salaire insuffisant ou inexistant peut provoquer des **révoltes** ou des **soulèvements populaires**.\n- Cette règle s’applique également à **tous les autres métiers** civils et militaires.\n## 4.2 : Entretien du matériel militaire\nLe matériel militaire doit être régulièrement **réparé** et **rénové**.\n- Au fil du temps, l'équipement se détériore, réduisant son **efficacité** et augmentant les risques de **pannes** ou d'**explosions**.",
+        "color": 3235328
+      },
+      {
+        "title": "5. Matériel et Industrie",
+        "description": "## 5.1 : Équipement de départ\nChaque pays commence avec un stock initial de **2500 fusils M1 Garand**. \n- Ce fusil ne peut être produit par les joueurs, sauf si une **licence** est obtenue par le biais de développements militaires futurs.\n## 5.2 : Production industrielle\nLes **productions industrielles** affichées dans #「📜」𝗦cénario doivent être respectées.  \n- Le staff effectuera des vérifications régulières pour s'assurer de la conformité.",
+        "color": 3235328
+      },
+      {
+        "title": "6. Conditions Spéciales d’Annexions et Conquêtes",
+        "description": "## 6.1 : Annexions forcées par la guerre\nL’annexion d’un territoire par la force est possible, mais elle entraîne des **réductions de production** et augmente les risques de **révoltes**.\n- Le nombre de territoires annexables par guerre dépend de l’année et du contexte.\n## 6.2 : Règles spécifiques des fantoches\nSi un fantoche participe à une guerre et que son État vassal a atteint sa limite de fantoches, il ne pourra pas annexer de nouveau pays.",
+        "color": 3235328
+      },
+      {
+        "description": "*:scroll: Comme tous les règlements du serveur, ce règlement peut être sujet à édition dont la communauté sera notifiée.*",
+        "color": 3235328
+      }
+    ],
+    "attachments": []
+  }

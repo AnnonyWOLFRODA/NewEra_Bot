@@ -1,0 +1,75 @@
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: e8f5388dadbcb34be8746f5853d3cf88).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 700c49d98a03b1dadcabbea03b478127).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 9d867790f9933d54bc0bc40785b01869).
+INFO:discord.client:logging in using static token
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 19ced79ee70ea8c266ede3cec4bcc33e).
+INFO:discord.client:logging in using static token
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 90a1b4ba5d8478868dc823c49861177d).
+INFO:discord.client:logging in using static token
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 7afed9ae09e269b4070aac260196e484).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 8f90515c6e70d43d1403968d056d409d).
+ERROR:discord.client:Ignoring exception in on_ready
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/client.py", line 441, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/Bots/NEBot/src/main.py", line 162, in on_ready
+    await setup_bot()
+  File "/home/ubuntu/Bots/NEBot/src/commands/bot.py", line 14, in setup_bot
+    db_manager = DatabaseManager(DB_PATH)
+NameError: name 'DB_PATH' is not defined
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: fd3548e2f20b126d4fb557a14aeaa376).
+ERROR:discord.client:Ignoring exception in on_ready
+Traceback (most recent call last):
+  File "/home/ubuntu/Bots/NEBot/src/main.py", line 138, in on_ready
+    await bot.start(TOKEN)
+NameError: name 'TOKEN' is not defined
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/client.py", line 441, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/Bots/NEBot/src/main.py", line 140, in on_ready
+    logger.exception(f"Error starting bot: {e}")
+NameError: name 'logger' is not defined
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 7ad9e03ea1c4187c749db5ba715711ec).
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 05de33fcd6ba3917411a1a7e335d9752).
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 7aabcb0ca02b087fb822ec02e06a54b6).
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: ac32e13dc7206c79086a95a151eefd1a).
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 72c669d88f3dafe9279aef8fe36d4d0a).
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: b5668eeafdba7ff3ab29b4c56082c906).
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 8bf9df6c67de39be8032c377dd1877cc).
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 7073263dc678bb9b7ec78c0d25ced75c).
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 3ddf0b019f637e6099736a46378f3422).
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 8a156675c08a3cdc2781907a9f69c451).

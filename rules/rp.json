@@ -1,0 +1,30 @@
+{
+    "content": "**:scales: Règlement du Roleplay en Général de Nouvelle-Ère V4 :scales:**",
+    "embeds": [
+      {
+        "title": "1. Conditions Générales de Participation",
+        "description": "## 1.1 : Lecture des règlements\nAvant de commencer à jouer, il est impératif de **lire l’ensemble des règlements** ainsi que le Guide et les salons d’informations liés au jeu. Une bonne compréhension des règles est essentielle pour garantir une expérience de jeu fluide.\n## 1.2 : Création de votre pays\nLa **fiche de création de pays** doit être correctement remplie. Il est important de fournir toutes les informations nécessaires, y compris les informations IRL requises.\n## 1.3 : Pseudos Roleplay\nVotre **pseudo Roleplay** doit suivre le modèle suivant :  \n`\"Jean-Pierre | Royaume de France\"`  \nIl doit inclure le **nom de votre dirigeant** et le **nom de votre nation**.",
+        "color": 2513663
+      },
+      {
+        "title": "2. Gestion et Développement de Votre Nation",
+        "description": "## 2.1 : Proclamation\nUne fois votre fiche validée, il est nécessaire de faire une **proclamation**. Cette proclamation doit inclure un résumé du **contexte de votre pays** et une description de ses **institutions**.\n## 2.2 : Priorités de développement\nAprès la proclamation, la priorité doit être donnée à la **reconstruction** et au **développement** de votre État. Il est recommandé de commencer par les **infrastructures**, la **santé**, l’**éducation**, et l’**industrie**, avant de se concentrer sur le **militaire**. Un gouvernement négligeant ses citoyens peut faire face à des manifestations, voire pire.\n## 2.3 : Économie\nLe **PIB de départ** pour la première année est fixé à **1000 millions** (1 milliard), avec un **budget annuel** correspondant à **50 % du PIB**. Par conséquent, pour la première année, le budget est de **500 millions**.",
+        "color": 2513663
+      },
+      {
+        "title": "3. Règles de Jeu et Fairplay",
+        "description": "## 3.1 : Règles d’écriture et de clarté\nChaque action effectuée en RP doit être **clairement rédigée** et exempte de fautes majeures. Si une action a un **coût**, celui-ci doit être **précisé**. En l’absence d’indication de coût, l’action sera considérée comme non réalisée.\n## 3.2 : Fairplay\nLe **fairplay** est un principe fondamental du Roleplay.  \n- Les **conflits en RP** doivent être gérés de manière mature, sans rompre l’immersion des autres joueurs.\n- En cas de désaccord sur une action ou un événement RP, la **discussion** entre les participants concernés** est encouragée pour éviter l'escalade.\n- Le **respect des autres joueurs** est essentiel. Profiter de la méconnaissance des règles ou du contexte par un nouveau joueur sera sévèrement sanctionné.\n## 3.3 : Utilisation d'IA\nL’utilisation d’**IA** comme ChatGPT pour rédiger des actions est interdite. Toute action réalisée par un bot sera sanctionnée après un premier avertissement.",
+        "color": 2513663
+      },
+      {
+        "title": "4. Règles Diverses",
+        "description": "## 4.1 : Changement de pays\nIl est interdit de **changer de pays** plus de deux fois par an, afin d'éviter de perturber inutilement le déroulement du Roleplay.\n## 4.2 : Communication HRP dans les salons RP\nParler HRP dans un **salon RP** est strictement interdit et peut entraîner un mute si cela devient une habitude.",
+        "color": 2513663
+      },
+      {
+        "description": "*:scroll: Comme tous les règlements du serveur, ce règlement peut être sujet à édition dont la communauté sera notifiée.*",
+        "color": 2513663
+      }
+    ],
+    "attachments": []
+  }

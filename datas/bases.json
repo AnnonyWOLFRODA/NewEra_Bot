@@ -1,0 +1,106 @@
+{
+    "bases_militaires": {
+      "terrestre_1": {
+        "type": "Camp de base",
+        "effectif": 500,
+        "cout": 250000
+      },
+      "terrestre_2": {
+        "type": "Camp moyen",
+        "effectif": 1000,
+        "cout": 500000
+      },
+      "terrestre_3": {
+        "type": "Camp avancé",
+        "effectif": 3500,
+        "cout": 1750000
+      },
+      "terrestre_4": {
+        "type": "Base moyenne",
+        "effectif": 5000,
+        "cout": 2500000
+      },
+      "terrestre_5": {
+        "type": "Base avancée",
+        "effectif": 10000,
+        "cout": 10000000
+      },
+      "terrestre_6": {
+        "type": "Grande base",
+        "effectif": 30000,
+        "cout": 15000000
+      },
+      "terrestre_7": {
+        "type": "Complexe de bases militaire",
+        "effectif": 100000,
+        "cout": 50000000
+      },
+      "aerienne_1": {
+        "type": "Petite base",
+        "effectif": 500,
+        "appareils": 10,
+        "cout": 375000
+      },
+      "aerienne_2": {
+        "type": "Base moyenne",
+        "effectif": 2000,
+        "appareils": 40,
+        "cout": 750000
+      },
+      "aerienne_3": {
+        "type": "Base avancée",
+        "effectif": 5000,
+        "appareils": 100,
+        "cout": 2500000
+      },
+      "aerienne_4": {
+        "type": "Grande base",
+        "effectif": 10000,
+        "appareils": 200,
+        "cout": 5000000
+      },
+      "maritime_1": {
+        "type": "Petite base",
+        "effectif": 2000,
+        "appareils": 5,
+        "cout": 1275000
+      },
+      "maritime_2": {
+        "type": "Base moyenne",
+        "effectif": 7500,
+        "appareils": 18,
+        "cout": 3275000
+      },
+      "maritime_3": {
+        "type": "Base avancée",
+        "effectif": 15000,
+        "appareils": 37,
+        "cout": 10000000
+      },
+      "maritime_4": {
+        "type": "Grande base",
+        "effectif": 30000,
+        "appareils": 75,
+        "cout": 15000000
+      }
+    },
+    "ecoles_militaires": {
+      "ecole_1": {
+        "type": "Petite école militaire",
+        "cout": 500000
+      },
+      "ecole_2": {
+        "type": "École militaire moyenne",
+        "cout": 1250000
+      },
+      "ecole_3": {
+        "type": "Grande école militaire",
+        "cout": 2500000
+      },
+      "ecole_4": {
+        "type": "Université militaire",
+        "cout": 5000000
+      }
+    }
+  }
+  

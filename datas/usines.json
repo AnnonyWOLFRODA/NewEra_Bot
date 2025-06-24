@@ -1,0 +1,555 @@
+{
+    "1": 
+    {
+        "nombre_ouvriers": "50",
+        "cout_construction": "200000",
+        "production_mensuelle": 
+        {
+            "terrestre": 
+            {
+                "armement_personnel": 300,
+                "mitrailleuse_lourde": 50,
+                "petite_artillerie": 10,
+                "grande_artillerie": 1,
+                "vehicules_blindes": 1,
+                "petrole_millions_barils": 100,
+                "4x4": 5,
+                "char_leger": 1,
+                "char_moyen": 0,
+                "char_lourd_MBT": 0
+            },
+            "navale": 
+            {
+                "fregate_destroyeur": 0.3,
+                "aviso": 1,
+                "sous_marin": 1,
+                "croiseur": 0,
+                "cuirasse": 0,
+                "porte_avions": 0
+            },
+            "aerienne": 
+            {
+                "avion_interception_reconnaissance": 7.5,
+                "bombardier": 7.5
+            },
+            "explosif": 
+            {
+                "grenade_fumigene": 500,
+                "grenade_assourdissante": 1000,
+                "grenade_fragmentation": 250,
+                "grenade_percussion": 250,
+                "grenade_incendiaire": 250,
+                "grenade_anti_char": 50,
+                "grenade_gaz": 0,
+                "missiles": 
+                {
+                    "missile_mer_mer": 100,
+                    "missile_air_sol": 50,
+                    "missile_sol_air": 25,
+                    "missile_sol_sol": 10
+                },
+                "bombes": 
+                {
+                    "bombe_artisanale": 100,
+                    "bombe_fragmentation": 100,
+                    "bombe_biologique": 50,
+                    "bombe_incendiaire": 50,
+                    "bombe_chimique": 50,
+                    "bombe_guidee": 25
+                },
+                "mines": 
+                {
+                    "mine_antipersonnel": 100,
+                    "mine_antichar": 100,
+                    "mine_navale": 25
+                },
+                "speciaux": 
+                {
+                    "dynamite": 250,
+                    "TNT": 250,
+                    "PETN": 250,
+                    "RDX": 100,
+                    "C4": 50
+                },
+                "bombe_nucleaire": 
+                {
+                    "production_annuelle": 0.02
+                }
+            }
+        }
+    },
+    "2": 
+    {
+        "nombre_ouvriers": "130",
+        "cout_construction": "650000",
+        "production_mensuelle": 
+        {
+            "terrestre": 
+            {
+                "armement_personnel": 900,
+                "mitrailleuse_lourde": 100,
+                "petite_artillerie": 15,
+                "grande_artillerie": 2,
+                "vehicules_blindes": 3,
+                "petrole_millions_barils": 300,
+                "4x4": 15,
+                "char_leger": 2,
+                "char_moyen": 1,
+                "char_lourd_MBT": 0
+            },
+            "navale": 
+            {
+                "fregate_destroyeur": 0.3,
+                "aviso": 1,
+                "sous_marin": 1,
+                "croiseur": 0.1,
+                "cuirasse": 0,
+                "porte_avions": 0
+            },
+            "aerienne": 
+            {
+                "avion_interception_reconnaissance": 7.5,
+                "bombardier": 7.5
+            },
+            "explosif": 
+            {
+                "grenade_fumigene": 1000,
+                "grenade_assourdissante": 2000,
+                "grenade_fragmentation": 500,
+                "grenade_percussion": 500,
+                "grenade_incendiaire": 500,
+                "grenade_anti_char": 100,
+                "grenade_gaz": 0,
+                "missiles": 
+                {
+                    "missile_mer_mer": 200,
+                    "missile_air_sol": 100,
+                    "missile_sol_air": 50,
+                    "missile_sol_sol": 25
+                },
+                "bombes": 
+                {
+                    "bombe_artisanale": 200,
+                    "bombe_fragmentation": 200,
+                    "bombe_biologique": 100,
+                    "bombe_incendiaire": 100,
+                    "bombe_chimique": 100,
+                    "bombe_guidee": 50
+                },
+                "mines": 
+                {
+                    "mine_antipersonnel": 200,
+                    "mine_antichar": 200,
+                    "mine_navale": 50
+                },
+                "speciaux": 
+                {
+                    "dynamite": 500,
+                    "TNT": 500,
+                    "PETN": 500,
+                    "RDX": 250,
+                    "C4": 100
+                },
+                "bombe_nucleaire": 
+                {
+                    "production_annuelle": 0.033
+                }
+            }
+        }
+    },
+    "3": 
+    {
+        "nombre_ouvriers": "250",
+        "cout_construction": "1750000",
+        "production_mensuelle": 
+        {
+            "terrestre": 
+            {
+                "armement_personnel": 4000,
+                "mitrailleuse_lourde": 300,
+                "petite_artillerie": 75,
+                "grande_artillerie": 15,
+                "vehicules_blindes": 10,
+                "petrole_millions_barils": 1000,
+                "4x4": 50,
+                "char_leger": 10,
+                "char_moyen": 2,
+                "char_lourd_MBT": 1
+            },
+            "navale": 
+            {
+                "fregate_destroyeur": 0.3,
+                "aviso": 1,
+                "sous_marin": 1,
+                "croiseur": 0.2,
+                "cuirasse": 0.1,
+                "porte_avions": 0.125
+            },
+            "aerienne": 
+            {
+                "avion_interception_reconnaissance": 17.5,
+                "bombardier": 7.5
+            },
+            "explosif": 
+            {
+                "grenade_fumigene": 2500,
+                "grenade_assourdissante": 5000,
+                "grenade_fragmentation": 1000,
+                "grenade_percussion": 1000,
+                "grenade_incendiaire": 1250,
+                "grenade_anti_char": 300,
+                "grenade_gaz": 150,
+                "missiles": 
+                {
+                    "missile_mer_mer": 350,
+                    "missile_air_sol": 200,
+                    "missile_sol_air": 125,
+                    "missile_sol_sol": 50
+                },
+                "bombes": 
+                {
+                    "bombe_artisanale": 350,
+                    "bombe_fragmentation": 350,
+                    "bombe_biologique": 175,
+                    "bombe_incendiaire": 175,
+                    "bombe_chimique": 175,
+                    "bombe_guidee": 100
+                },
+                "mines": 
+                {
+                    "mine_antipersonnel": 350,
+                    "mine_antichar": 350,
+                    "mine_navale": 75
+                },
+                "speciaux": 
+                {
+                    "dynamite": 1000,
+                    "TNT": 1000,
+                    "PETN": 1000,
+                    "RDX": 500,
+                    "C4": 200
+                },
+                "bombe_nucleaire": 
+                {
+                    "production_annuelle": 0.05
+                }
+            }
+        }
+    },
+    "4": 
+    {
+        "nombre_ouvriers": "390",
+        "cout_construction": "4500000",
+        "production_mensuelle": 
+        {
+            "terrestre": 
+            {
+                "armement_personnel": 5000,
+                "mitrailleuse_lourde": 500,
+                "petite_artillerie": 150,
+                "grande_artillerie": 225,
+                "vehicules_blindes": 130,
+                "petrole_millions_barils": 1800,
+                "4x4": 90,
+                "char_leger": 20,
+                "char_moyen": 5,
+                "char_lourd_MBT": 3
+            },
+            "navale": 
+            {
+                "fregate_destroyeur": 2,
+                "aviso": 1,
+                "sous_marin": 1,
+                "croiseur": 0.5,
+                "cuirasse": 0.125,
+                "porte_avions": 0.25
+            },
+            "aerienne": 
+            {
+                "avion_interception_reconnaissance": 17.5,
+                "bombardier": 20
+            },
+            "explosif": 
+            {
+                "grenade_fumigene": 12500,
+                "grenade_assourdissante": 15000,
+                "grenade_fragmentation": 7500,
+                "grenade_percussion": 1650,
+                "grenade_incendiaire": 2000,
+                "grenade_anti_char": 500,
+                "grenade_gaz": 500,
+                "missiles": 
+                {
+                    "missile_mer_mer": 500,
+                    "missile_air_sol": 250,
+                    "missile_sol_air": 250,
+                    "missile_sol_sol": 100
+                },
+                "bombes": 
+                {
+                    "bombe_artisanale": 500,
+                    "bombe_fragmentation": 500,
+                    "bombe_biologique": 350,
+                    "bombe_incendiaire": 350,
+                    "bombe_chimique": 350,
+                    "bombe_guidee": 150
+                },
+                "mines": 
+                {
+                    "mine_antipersonnel": 750,
+                    "mine_antichar": 750,
+                    "mine_navale": 350
+                },
+                "speciaux": 
+                {
+                    "dynamite": 2500,
+                    "TNT": 2500,
+                    "PETN": 2500,
+                    "RDX": 1500,
+                    "C4": 500
+                },
+                "bombe_nucleaire": 
+                {
+                    "production_annuelle": 0.5
+                }
+            }
+        }
+    },
+    "5": 
+    {
+        "nombre_ouvriers": "550",
+        "cout_construction": "9000000",
+        "production_mensuelle": 
+        {
+            "terrestre": 
+            {
+                "armement_personnel": 6000,
+                "mitrailleuse_lourde": 750,
+                "petite_artillerie": 225,
+                "grande_artillerie": 300,
+                "vehicules_blindes": 190,
+                "petrole_millions_barils": 2700,
+                "4x4": 150,
+                "char_leger": 30,
+                "char_moyen": 10,
+                "char_lourd_MBT": 5
+            },
+            "navale": 
+            {
+                "fregate_destroyeur": 2,
+                "aviso": 1,
+                "sous_marin": 1,
+                "croiseur": 1.3,
+                "cuirasse": 0.25,
+                "porte_avions": 0.25
+            },
+            "aerienne": 
+            {
+                "avion_interception_reconnaissance": 17.5,
+                "bombardier": 50
+            },
+            "explosif": 
+            {
+                "grenade_fumigene": 12500,
+                "grenade_assourdissante": 15000,
+                "grenade_fragmentation": 7500,
+                "grenade_percussion": 1650,
+                "grenade_incendiaire": 2000,
+                "grenade_anti_char": 500,
+                "grenade_gaz": 500,
+                "missiles": 
+                {
+                    "missile_mer_mer": 500,
+                    "missile_air_sol": 250,
+                    "missile_sol_air": 250,
+                    "missile_sol_sol": 100
+                },
+                "bombes": 
+                {
+                    "bombe_artisanale": 500,
+                    "bombe_fragmentation": 500,
+                    "bombe_biologique": 350,
+                    "bombe_incendiaire": 350,
+                    "bombe_chimique": 350,
+                    "bombe_guidee": 150
+                },
+                "mines": 
+                {
+                    "mine_antipersonnel": 750,
+                    "mine_antichar": 750,
+                    "mine_navale": 350
+                },
+                "speciaux": 
+                {
+                    "dynamite": 2500,
+                    "TNT": 2500,
+                    "PETN": 2500,
+                    "RDX": 1500,
+                    "C4": 500
+                },
+                "bombe_nucleaire": 
+                {
+                    "production_annuelle": 0.5
+                }
+            }
+        }
+    },
+    "6":
+    {
+        "nombre_ouvriers": "900",
+        "cout_construction": "25000000",
+        "production_mensuelle": 
+        {
+            "terrestre": 
+            {
+                "armement_personnel": 8000,
+                "mitrailleuse_lourde": 1500,
+                "petite_artillerie": 300,
+                "grande_artillerie": 500,
+                "vehicules_blindes": 275,
+                "petrole_millions_barils": 5000,
+                "4x4": 300,
+                "char_leger": 50,
+                "char_moyen": 20,
+                "char_lourd_MBT": 10
+            },
+            "navale": 
+            {
+                "fregate_destroyeur": 2,
+                "aviso": 1,
+                "sous_marin": 1,
+                "croiseur": 1.3,
+                "cuirasse": 0.25,
+                "porte_avions": 0.25
+            },
+            "aerienne": 
+            {
+                "avion_interception_reconnaissance": 17.5,
+                "bombardier": 50
+            },
+            "explosif": 
+            {
+                "grenade_fumigene": 12500,
+                "grenade_assourdissante": 15000,
+                "grenade_fragmentation": 7500,
+                "grenade_percussion": 1650,
+                "grenade_incendiaire": 2000,
+                "grenade_anti_char": 500,
+                "grenade_gaz": 500,
+                "missiles": 
+                {
+                    "missile_mer_mer": 500,
+                    "missile_air_sol": 250,
+                    "missile_sol_air": 250,
+                    "missile_sol_sol": 100
+                },
+                "bombes": 
+                {
+                    "bombe_artisanale": 500,
+                    "bombe_fragmentation": 500,
+                    "bombe_biologique": 350,
+                    "bombe_incendiaire": 350,
+                    "bombe_chimique": 350,
+                    "bombe_guidee": 150
+                },
+                "mines": 
+                {
+                    "mine_antipersonnel": 750,
+                    "mine_antichar": 750,
+                    "mine_navale": 350
+                },
+                "speciaux": 
+                {
+                    "dynamite": 2500,
+                    "TNT": 2500,
+                    "PETN": 2500,
+                    "RDX": 1500,
+                    "C4": 500
+                },
+                "bombe_nucleaire": 
+                {
+                    "production_annuelle": 0.5
+                }
+            }
+        }
+    },
+    "7": 
+    {
+        "nombre_ouvriers": "2000",
+        "cout_construction": "55000000",
+        "production_mensuelle": 
+        {
+            "terrestre": 
+            {
+                "armement_personnel": 10000,
+                "mitrailleuse_lourde": 7500,
+                "petite_artillerie": 500,
+                "grande_artillerie": 1000,
+                "vehicules_blindes": 500,
+                "petrole_millions_barils": 10,
+                "4x4": 500,
+                "char_leger": 100,
+                "char_moyen": 25,
+                "char_lourd_MBT": 10
+            },
+            "navale": 
+            {
+                "fregate_destroyeur": 0.25,
+                "aviso": 1,
+                "sous_marin": 1,
+                "croiseur": 1.3,
+                "cuirasse": 0.25,
+                "porte_avions": 0.25
+            },
+            "aerienne": 
+            {
+                "avion_interception_reconnaissance": 17.5,
+                "bombardier": 50
+            },
+            "explosif": 
+            {
+                "grenade_fumigene": 12500,
+                "grenade_assourdissante": 15000,
+                "grenade_fragmentation": 7500,
+                "grenade_percussion": 1650,
+                "grenade_incendiaire": 2000,
+                "grenade_anti_char": 500,
+                "grenade_gaz": 500,
+                "missiles": 
+                {
+                    "missile_mer_mer": 500,
+                    "missile_air_sol": 250,
+                    "missile_sol_air": 250,
+                    "missile_sol_sol": 100
+                },
+                "bombes": 
+                {
+                    "bombe_artisanale": 500,
+                    "bombe_fragmentation": 500,
+                    "bombe_biologique": 350,
+                    "bombe_incendiaire": 350,
+                    "bombe_chimique": 350,
+                    "bombe_guidee": 150
+                },
+                "mines": 
+                {
+                    "mine_antipersonnel": 750,
+                    "mine_antichar": 750,
+                    "mine_navale": 350
+                },
+                "speciaux": 
+                {
+                    "dynamite": 2500,
+                    "TNT": 2500,
+                    "PETN": 2500,
+                    "RDX": 1500,
+                    "C4": 500
+                },
+                "bombe_nucleaire": 
+                {
+                    "production_annuelle": 1
+                }
+            }
+        }
+    }
+}
