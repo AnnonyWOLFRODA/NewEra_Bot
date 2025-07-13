@@ -1,0 +1,83 @@
+{
+    "bat_types": {
+        "0": [
+            "usine_lvl",
+            7
+        ],
+        "1": [
+            "terrestre_",
+            7
+        ],
+        "2": [
+            "aerienne_",
+            4
+        ],
+        "3": [
+            "maritime_",
+            4
+        ],
+        "4": [
+            "ecole_",
+            4
+        ]
+    },
+    "query_types": {
+        "user": 400,
+        "trusted": 800,
+        "mod": 2000,
+        "admin": 8000
+    },
+    "bi_admins_id": [
+        293869524091142144,
+        557638191231008768,
+        1225576816958242877,
+        868399385149579274
+    ],
+    "Erreurs": {
+        "Erreur 1": "Le salon dans lequel vous effectuez la commande n'est pas le bon\n",
+        "Erreur 2": "Aucun champ de recherche n'a été donné\n",
+        "Erreur 3": "Le champ de recherche donné est invalide\n",
+        "Erreur 3.2": "Le champ de recherche donné est invalide - Le pays n'est pas dans les fichiers\n",
+        "Erreur 4": "La pause est déjà en cours\n",
+        "Erreur 5": "Vous n'avez pas la permission de faire la commande.\n"
+    },
+    "continents_dict": {
+        "Oceanie": 992368253580087377,
+        "Asie": 1243672298381381816,
+        "Moyen-Orient": 951163668102520833,
+        "Afrique": 961678827933794314,
+        "Amerique": 952314456870907934,
+        "Europe": 955479237001891870
+    },
+    "continents": [
+        "Europe",
+        "Amerique",
+        "Asie",
+        "Afrique",
+        "Moyen-Orient",
+        "Oceanie"
+    ],
+    "code_list": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "MR",
+        "MRR",
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "PR",
+        "PRR"
+    ],
+    "usefull_role_ids_dic": {
+        "staff": 1230046019262087198
+    },
+    "starting_amounts": {
+        "money": 500000000,
+        "pd": 4,
+        "pp": 2
+    }
+}

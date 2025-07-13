@@ -1,0 +1,31 @@
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 1f22e01c19771c1dffae2f80e3964ad2).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 60f7d86bbf00c1af01570bb85fcc32b1).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 009d2422f10bc105c679a7f723bddbd2).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 1d3af2f53829aeb44c50142191827213).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 3bacf07082c96aaa7cc161193f333bad).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 5906e27f1dcf22cd3cc3050e7f97b16c).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 6ec43a2b35db23f188ba940c0e5c01bd).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: e3073bb844bab33b38a882ed2a158ead).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 7b0e3976e109018e66b26d761ab6bde5).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 901f8a5e513c91f19645d9e0b64f2665).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: ca6118a002715e4a501cac2ccb13df88).
+INFO:discord.gateway:Shard ID None has successfully RESUMED session ca6118a002715e4a501cac2ccb13df88.
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: c63ab80cc974f5fca71e6c98241bc01d).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: e8b777b140ed9db46a67573c3a6c1f8d).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: a8c2fdf91aed96fc2ca5298a524dfee7).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 2ad47cfc27bcf63c3ad44a5334aa0c34).

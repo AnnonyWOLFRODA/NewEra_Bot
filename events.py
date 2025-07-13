@@ -1,6 +1,7 @@
 import json
 
 import aiohttp
+from datetime import datetime, timezone
 
 class DiscordEvents:
     '''Class to create and list Discord events utilizing their API'''
@@ -16,6 +17,7 @@ class DiscordEvents:
         '''Returns a list of upcoming events for the supplied guild ID
         Format of return is a list of one dictionary per event containing information.'''
         event_retrieve_url = f'{self.base_api_url}/guilds/{guild_id}/scheduled-events'
+        response_list = []
         async with aiohttp.ClientSession(headers=self.auth_headers) as session:
             try:
                 async with session.get(event_retrieve_url) as response:
