@@ -29,3 +29,6 @@ INFO:discord.client:logging in using static token
 INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: a8c2fdf91aed96fc2ca5298a524dfee7).
 INFO:discord.client:logging in using static token
 INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 2ad47cfc27bcf63c3ad44a5334aa0c34).
+INFO:discord.gateway:Shard ID None has successfully RESUMED session 2ad47cfc27bcf63c3ad44a5334aa0c34.
+INFO:discord.gateway:Shard ID None has successfully RESUMED session 2ad47cfc27bcf63c3ad44a5334aa0c34.
+INFO:discord.gateway:Shard ID None has successfully RESUMED session 2ad47cfc27bcf63c3ad44a5334aa0c34.
