@@ -78,3 +78,21 @@ class discordUtils:
         for embed_json in embeds_json:
             embed = discord.Embed().from_dict(embed_json)
             yield embed
+            
+    async def get_channel_context(self, channel: discord.TextChannel, messageLimit: discord.Message) -> str:
+        """Récupère le contexte du salon pour la synthèse."""
+        messages = []
+        async for message in channel.history(limit=100):
+            if message.author.bot:
+                continue
+            if message.id == messageLimit.id:
+                break
+            if message.content:
+                messages.append(f"{message.author.display_name}: {message.content}")
+            if message.embeds:
+                for embed in message.embeds:
+                    if embed.description:
+                        messages.append(f"{message.author.display_name} (embed): {embed.description}")
+                    if embed.title:
+                        messages.append(f"{message.author.display_name} (embed title): {embed.title}")
+        return "\n".join(messages)

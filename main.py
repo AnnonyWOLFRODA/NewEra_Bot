@@ -109,7 +109,6 @@ with open("datas/main.json") as f:
     usefull_role_ids_dic = json_data["usefull_role_ids_dic"]
     buildQuality = json_data["buildQuality"]
 
-
 @bot.event
 async def on_message(message):
     if (
@@ -130,7 +129,6 @@ async def on_message(message):
     if "soup" in message.content.lower():
         await message.add_reaction("🥣")
     await bot.process_commands(message)
-
 
 async def insert_mention(
     message: discord.Message, user: discord.User, mentions: dict = None
@@ -155,7 +153,6 @@ async def insert_mention(
         title=message.embeds[0].title, description=message_content, color=all_color_int
     )
     await message.edit(embed=embed)
-
 
 async def handle_treaty(reaction: discord.Reaction, user: discord.User):
     async def handle_treaty(reaction: discord.Reaction, user: discord.User):
@@ -295,16 +292,9 @@ async def sign_user_to_treaty(
         await ctx.send("Impossible d'obtenir l'utilisateur.")
         return
 
-
 @bot.event
 async def on_command_error(ctx, error):
     return await ctx.send(error)
-
-async def get_player_role(ctx):
-    return ctx.guild.get_role(873955562734362625)
-
-async def get_non_player_role(ctx):
-    return ctx.guild.get_role(873955513921048646)
 
 class ConstructionForm(discord.ui.Modal, title="Données de construction"):
     def __init__(self, goal: str):
@@ -419,19 +409,12 @@ async def construction_immeuble(ctx, goal: str = None) -> None:
         view=ModalTriggerView(),
     )
 
-
-## Eco
-
-
 @bot.command()
 async def give(ctx, user: discord.Member, amount: Union[int, str]):
-
     author = ctx.author
-
     sender_balance = db.get_balance(author.id)
     if sender_balance is None:
         sender_balance = 0
-
     if not amount_converter(amount, sender_balance):
         embed = discord.Embed(
             title="Erreur de donation",
@@ -440,9 +423,7 @@ async def give(ctx, user: discord.Member, amount: Union[int, str]):
         )
         await ctx.send(embed=embed)
         return
-
     payment_amount = amount_converter(amount, sender_balance)
-
     if not db.has_enough_balance(author.id, payment_amount):
         print(sender_balance, payment_amount)
         embed = discord.Embed(
@@ -452,11 +433,9 @@ async def give(ctx, user: discord.Member, amount: Union[int, str]):
         )
         await ctx.send(embed=embed)
         return
-
     recipient_balance = db.get_balance(user.id)
     if recipient_balance is None:
         recipient_balance = 0
-
     db.give_balance(user.id, payment_amount)
     db.take_balance(author.id, payment_amount)
     transa_embed = discord.Embed(
@@ -464,10 +443,8 @@ async def give(ctx, user: discord.Member, amount: Union[int, str]):
         description=f":moneybag: **{convert(str(payment_amount))}** ont été donnés à l'utilisateur {user.mention}.",
         color=money_color_int,
     )
-
     await eco_logger("M1", payment_amount, ctx.author, user)
     await ctx.send(embed=transa_embed)
-
 
 @bot.command()
 async def remove_money(ctx, user: discord.Member, amount: Union[int, str]):
@@ -511,7 +488,6 @@ async def remove_money(ctx, user: discord.Member, amount: Union[int, str]):
     await eco_logger("M5", payment_amount, user, ctx.author)
     await ctx.send(embed=embed)
 
-
 @bot.command()
 async def remove_pp(ctx, user: discord.Member, amount: Union[int, str]):
     if not dUtils.is_authorized(ctx):
@@ -552,7 +528,6 @@ async def remove_pp(ctx, user: discord.Member, amount: Union[int, str]):
     )
     await eco_logger("P4", payment_amount, user, ctx.author, 1)
     await ctx.send(embed=embed)
-
 
 @bot.command()
 async def remove_pd(ctx, user: discord.Member, amount: Union[int, str]):
@@ -595,7 +570,6 @@ async def remove_pd(ctx, user: discord.Member, amount: Union[int, str]):
     await eco_logger("P4", payment_amount, user, ctx.author, 2)
     await ctx.send(embed=embed)
 
-
 @bot.command()
 async def bal(ctx, user: discord.Member = None):
     if user is None:
@@ -613,7 +587,6 @@ async def bal(ctx, user: discord.Member = None):
         )
         embed.set_footer(text=f"Classement: {db.get_leads(1, user.id)}")
     await ctx.send(embed=embed)
-
 
 @bot.command()
 async def points_p(ctx, user: discord.Member = None):
@@ -634,7 +607,6 @@ async def points_p(ctx, user: discord.Member = None):
         embed.set_footer(text=f"Classement: {db.get_leads(2, user.id)}")
     await ctx.send(embed=embed)
 
-
 @bot.command()
 async def points_d(ctx, user: discord.Member = None):
     if user is None:
@@ -653,7 +625,6 @@ async def points_d(ctx, user: discord.Member = None):
         )
         embed.set_footer(text=f"Classement: {db.get_leads(3, user.id)}")
     await ctx.send(embed=embed)
-
 
 @bot.command()
 async def set_money(ctx, user: discord.Member, amount: int):
@@ -676,7 +647,6 @@ async def set_money(ctx, user: discord.Member, amount: int):
     await eco_logger("M3", amount, user, ctx.author)
     await ctx.send(embed=embed)
 
-
 @bot.command()
 async def set_pp(ctx, user: discord.Member, amount: int):
     if not dUtils.is_authorized(ctx):
@@ -697,7 +667,6 @@ async def set_pp(ctx, user: discord.Member, amount: int):
     )
     await eco_logger("P2", amount, user, ctx.author, 1)
     await ctx.send(embed=embed)
-
 
 @bot.command()
 async def set_pd(ctx, user: discord.Member, amount: int):
@@ -720,7 +689,6 @@ async def set_pd(ctx, user: discord.Member, amount: int):
     await eco_logger("P2", amount, user, ctx.author, 2)
     await ctx.send(embed=embed)
 
-
 @bot.command()
 async def add_money(ctx, user: discord.Member, amount: int):
     if not dUtils.is_authorized(ctx):
@@ -740,7 +708,6 @@ async def add_money(ctx, user: discord.Member, amount: int):
     )
     await eco_logger("M2", amount, user, ctx.author)
     await ctx.send(embed=embed)
-
 
 @bot.command()
 async def add_pp(ctx, user: discord.Member, amount: int):
@@ -762,7 +729,6 @@ async def add_pp(ctx, user: discord.Member, amount: int):
     await eco_logger("P1", amount, user, ctx.author, 1)
     await ctx.send(embed=embed)
 
-
 @bot.command()
 async def add_pd(ctx, user: discord.Member, amount: int):
     if not dUtils.is_authorized(ctx):
@@ -782,7 +748,6 @@ async def add_pd(ctx, user: discord.Member, amount: int):
     )
     await eco_logger("P1", amount, user, ctx.author, 2)
     await ctx.send(embed=embed)
-
 
 @bot.command()
 async def pay(ctx, amount: Union[int, str]):
@@ -818,7 +783,6 @@ async def pay(ctx, amount: Union[int, str]):
     await eco_logger("M4", payment_amount, ctx.author)
     await ctx.send(embed=embed)
 
-
 @bot.command()
 async def use_pp(ctx, amount: int = 1):
     user = ctx.author
@@ -851,7 +815,6 @@ async def use_pp(ctx, amount: int = 1):
     await eco_logger("P3", amount, ctx.author, None, 1)
     await ctx.send(embed=embed)
 
-
 @bot.command()
 async def use_pd(ctx, amount: int = 1):
     user = ctx.author
@@ -883,7 +846,6 @@ async def use_pd(ctx, amount: int = 1):
     )
     await eco_logger("P3", amount, ctx.author, None, 2)
     await ctx.send(embed=embed)
-
 
 @bot.command()
 async def lead(ctx):
@@ -943,7 +905,6 @@ async def lead(ctx):
     view.add_item(next_button)
 
     await ctx.send(embed=embed, view=view)
-
 
 class EcoLogEvent:
     def __init__(self, code, amount, user1, user2=None, type=1):
@@ -1043,7 +1004,6 @@ class EcoLogEvent:
         )
         return discord.Embed(title=title, description=desc, color=color)
 
-
 async def eco_logger(code, amount, user1, user2=None, type=1):
     log_channel = bot.get_channel(1261064715480862866)
     event = EcoLogEvent(code, amount, user1, user2, type)
@@ -1057,7 +1017,6 @@ async def eco_logger(code, amount, user1, user2=None, type=1):
         await log_channel.send(embed=embed)
     else:
         print("Code non reconnu dans les mappings.")
-
 
 @bot.command()
 async def appareil_info(ctx, appareil):
@@ -1084,7 +1043,6 @@ async def appareil_info(ctx, appareil):
     # Envoyer l'embed
     await ctx.send(embed=embed)
 
-
 def is_valid_lvl(type: int, lvl: int):
     if lvl < 0:
         return False
@@ -1101,7 +1059,6 @@ def is_valid_lvl(type: int, lvl: int):
     else:
         return False
 
-
 @bot.command()
 async def production_time(ctx, app, qty, app_type=None, user: discord.Member = None):
     if db.find_app_type(app, production_data) is None:
@@ -1116,7 +1073,6 @@ async def production_time(ctx, app, qty, app_type=None, user: discord.Member = N
         )
     )
 
-
 @bot.command()
 async def list_apparels(ctx):
     app_types = ["terrestre", "navale", "aerienne", "explosif"]
@@ -1126,7 +1082,6 @@ async def list_apparels(ctx):
         for apparel in production_data["7"]["production_mensuelle"][app_type]:
             apparels.append(apparel)
     await dUtils.send_long_message(ctx, "\n- ".join(apparels))
-
 
 @bot.command()
 async def execute_cmd(ctx, *, code: str):
@@ -1156,10 +1111,6 @@ async def execute_cmd(ctx, *, code: str):
         await ctx.send(
             f"**Une erreur est survenue lors de l'exécution du code :**\n```python\n{e}\n```"
         )
-
-
-##
-
 
 @bot.command(
     name="construct_usine",
@@ -1220,7 +1171,6 @@ async def construct_usine(
     )
     await ctx.send(embed=embed)
 
-
 @bot.command()
 async def sell_batiment(ctx, bat_type, amount: int, lvl):
     user = ctx.author
@@ -1256,7 +1206,6 @@ async def sell_batiment(ctx, bat_type, amount: int, lvl):
     )
     await ctx.send(embed=embed)
 
-
 @bot.command()
 async def usines(ctx, type, user: discord.Member = None):
     if user is None:
@@ -1276,7 +1225,6 @@ async def usines(ctx, type, user: discord.Member = None):
             description=f"L'utilisateur a **{str(db.get_usine(user.id, type, 0))}** usines de type {type}.",
         )
     await ctx.send(embed=embed)
-
 
 @bot.command()
 async def remove_usine(ctx, user: discord.Member, amount: Union[int, str], lvl: int):
@@ -1319,7 +1267,6 @@ async def remove_usine(ctx, user: discord.Member, amount: Union[int, str], lvl: 
     )
     await ctx.send(embed=embed)
 
-
 @bot.command()
 async def set_usine(ctx, user: discord.Member, amount: int, lvl: int):
     if not dUtils.is_authorized(ctx):
@@ -1339,7 +1286,6 @@ async def set_usine(ctx, user: discord.Member, amount: int, lvl: int):
         color=money_color_int,
     )
     await ctx.send(embed=embed)
-
 
 @bot.command()
 async def set_base(ctx, bat_type: int, user: discord.Member, amount: int, lvl: int):
@@ -1361,7 +1307,6 @@ async def set_base(ctx, bat_type: int, user: discord.Member, amount: int, lvl: i
         color=money_color_int,
     )
     await ctx.send(embed=embed)
-
 
 @bot.command()
 async def batiments(ctx, bat_type: int, type, user: discord.Member = None):
@@ -1395,7 +1340,6 @@ async def batiments(ctx, bat_type: int, type, user: discord.Member = None):
             description=f"L'utilisateur a **{str(db.get_usine(user.id, type, bat_type))}** {bat_name}s de niveau {type}.",
         )
     await ctx.send(embed=embed)
-
 
 @bot.command()
 async def remove_bat(
@@ -1440,7 +1384,6 @@ async def remove_bat(
     )
     await ctx.send(embed=embed)
 
-
 @bot.command()
 async def del_betw(ctx, base_message: discord.Message, reach_message: discord.Message):
     if not ctx.author.id in bi_admins_id:
@@ -1463,7 +1406,6 @@ async def del_betw(ctx, base_message: discord.Message, reach_message: discord.Me
     )
     await ctx.channel.send(f"J'ai supprimé {len(deleted)} message(s)")
 
-
 @bot.command()
 async def del_til(ctx, reach_message: discord.Message):
     if not ctx.author.id in bi_admins_id:
@@ -1480,7 +1422,6 @@ async def del_til(ctx, reach_message: discord.Message):
         )
     deleted = await ctx.channel.purge(limit=1000, after=reach_message)
     await ctx.channel.send(f"J'ai supprimé {len(deleted)} message(s)")
-
 
 @bot.command(
     name="create_country",
@@ -1523,8 +1464,8 @@ async def create_country(
         "oceanie": 992368253580087377,
         "moyen-orient": 951163668102520833,
     }
-    player_role = await get_player_role(ctx)
-    non_player_role = await get_non_player_role(ctx)
+    player_role = await dUtils.get_player_role(ctx)
+    non_player_role = await dUtils.get_non_player_role(ctx)
     if not dUtils.is_authorized(ctx):
         return await ctx.send(embed=dUtils.get_auth_embed())
     continent = (continent.replace("é", "e")).lower()
@@ -1561,7 +1502,6 @@ async def create_country(
     await user.add_roles(player_role, reason=f"Création du pays {country_name}")
     await user.remove_roles(non_player_role, reason=f"Création du pays {country_name}")
     await ctx.send(f"Le pays {country_name} a été créé avec succès.")
-
 
 @bot.command(
     name="create_secret",
@@ -1623,7 +1563,6 @@ async def create_secret(
     )
     await ctx.send(f"Le service secret {secret_name} a été créé avec succès.")
 
-
 @bot.command(
     name="reformat_emoji",
     brief="Reformate un emoji en lui assignant un nouveau nom, et optionnellement, enlève son arrière-plan.",
@@ -1678,7 +1617,6 @@ async def reformat_emoji(
         f"{ctx.message.author.mention} J'ai reformatté l'emoji en <:{new_name}:{emoji.id}> pour le serveur."
     )
 
-
 @bot.command()
 async def cat_syncer(ctx, cat: discord.CategoryChannel):
     if ctx.author.id not in bi_admins_id:
@@ -1689,7 +1627,6 @@ async def cat_syncer(ctx, cat: discord.CategoryChannel):
         await i.edit(sync_permissions=True)
         await asyncio.sleep(2)
     await ctx.send("Fait")
-
 
 @bot.command()
 async def sync_channels(
@@ -1713,7 +1650,6 @@ async def sync_channels(
     await chan_to_sync.edit(overwrites=new_permissions)
     await ctx.send("Fait")
 
-
 @bot.command()
 async def sync_cats(
     ctx, cat_to_sync: discord.CategoryChannel, model_cat: discord.CategoryChannel
@@ -1723,7 +1659,6 @@ async def sync_cats(
     await cat_to_sync.edit(overwrites=model_cat.overwrites)
     await cat_syncer(ctx, cat_to_sync)
     await ctx.send("Fait")
-
 
 @bot.command()
 async def reformat_rp_channels(ctx):
@@ -1738,7 +1673,6 @@ async def reformat_rp_channels(ctx):
             await ctx.send(f"{channel.name} => {new_name}")
             # await channel.edit(name=new_name)
     await ctx.send("Fait")
-
 
 @bot.command()
 async def send_rules(ctx, webhook_url: str):
@@ -1826,12 +1760,10 @@ async def send_rules(ctx, webhook_url: str):
     await announce_channel.send("@everyone")
     await ctx.message.delete()
 
-
 def get_query_level(user_id):
     if user_id in bi_admins_id:
         return "admin"
     return "user"
-
 
 @bot.command()
 async def groq_chat(ctx, *, message):
@@ -1854,7 +1786,6 @@ async def groq_chat(ctx, *, message):
         await dUtils.send_long_message(ctx, response)
     except Exception as e:
         await ctx.send(f"❌ Erreur lors de la requête : {e}")
-
 
 async def ask_groq(user_message: str, level: str = "user") -> str:
     max_tokens = {"user": 400, "trusted": 800, "mod": 2000, "admin": 8000}.get(
@@ -1888,6 +1819,30 @@ async def ask_groq(user_message: str, level: str = "user") -> str:
     content = chat_completion.choices[0].message.content
     groq_chat_history.append((user_message, content))
     return content
+
+@bot.command()
+async def brief_chat_til(ctx, user_message: discord.Message):
+    """Résumer la situation actuelle du RP dans un salon."""
+    if not dUtils.is_authorized(ctx):
+        return await ctx.send(embed=dUtils.get_auth_embed())
+
+    # Récupérer le contexte du salon
+    channel_context = await dUtils.get_channel_context(user_message.channel, user_message)
+
+    # Construire le message pour Groq
+    system_prompt = (
+        "Tu es une IA spécialisée dans la synthèse d'informations géopolitiques. "
+        "Tu dois résumer la situation actuelle du RP dans un salon Discord, en te basant sur les messages récents."
+    )
+    messages = [{"role": "system", "content": system_prompt}]
+    messages.append({"role": "user", "content": channel_context})
+
+    try:
+        chat_completion = groq_client.chat.completions.create(messages=messages, model="llama-3.3-70b-versatile")
+        response = chat_completion.choices[0].message.content
+        await user_message.channel.send(f"Résumé de la situation : {response}")
+    except Exception as e:
+        await user_message.channel.send(f"Erreur lors de la synthèse : {e}")
 
 @bot.command()
 @commands.has_permissions(administrator=True)

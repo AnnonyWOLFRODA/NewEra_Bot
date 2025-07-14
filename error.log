@@ -544,3 +544,26 @@ INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 18f363e
 INFO:discord.client:logging in using static token
 INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 2cb5572db0b5db017fcf1a939baca55e).
 INFO:discord.gateway:Shard ID None has successfully RESUMED session 2cb5572db0b5db017fcf1a939baca55e.
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 208197885ec97475006749207438d3c4).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 3a5b471ed0a39455a398199afe6282d8).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 0b8c5e3237560e0c360394da6a758882).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: f2a5cc01dc0477075325064eadc4be30).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: ec974c2f3a8357817311ff7099892b3b).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 6f37b68ac569509fe4fc973a840bb973).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: b9079508809830475aa7f3b936426a9c).
+INFO:discord.gateway:Shard ID None has successfully RESUMED session b9079508809830475aa7f3b936426a9c.
+ERROR:discord.client:Attempting a reconnect in 0.63s
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/client.py", line 659, in connect
+    await self.ws.poll_event()
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/gateway.py", line 646, in poll_event
+    raise ConnectionClosed(self.socket, shard_id=self.shard_id, code=code) from None
+discord.errors.ConnectionClosed: Shard ID None WebSocket closed with 1000
+INFO:discord.gateway:Shard ID None has successfully RESUMED session b9079508809830475aa7f3b936426a9c.
