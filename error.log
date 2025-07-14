@@ -32,3 +32,16 @@ INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 2ad47cf
 INFO:discord.gateway:Shard ID None has successfully RESUMED session 2ad47cfc27bcf63c3ad44a5334aa0c34.
 INFO:discord.gateway:Shard ID None has successfully RESUMED session 2ad47cfc27bcf63c3ad44a5334aa0c34.
 INFO:discord.gateway:Shard ID None has successfully RESUMED session 2ad47cfc27bcf63c3ad44a5334aa0c34.
+INFO:discord.gateway:Shard ID None has successfully RESUMED session 2ad47cfc27bcf63c3ad44a5334aa0c34.
+INFO:discord.gateway:Shard ID None has successfully RESUMED session 2ad47cfc27bcf63c3ad44a5334aa0c34.
+ERROR:discord.client:Attempting a reconnect in 1.94s
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/client.py", line 659, in connect
+    await self.ws.poll_event()
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/gateway.py", line 646, in poll_event
+    raise ConnectionClosed(self.socket, shard_id=self.shard_id, code=code) from None
+discord.errors.ConnectionClosed: Shard ID None WebSocket closed with 1000
+INFO:discord.gateway:Shard ID None has successfully RESUMED session 2ad47cfc27bcf63c3ad44a5334aa0c34.
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 66660af1a119426386c5f3a6964fd122).
+INFO:discord.gateway:Shard ID None has successfully RESUMED session 66660af1a119426386c5f3a6964fd122.
