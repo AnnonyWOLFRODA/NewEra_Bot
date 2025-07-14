@@ -31,7 +31,7 @@ import requests
 from dotenv import dotenv_values
 import math
 import contextlib
-from discord.ui import Button, View
+from discord.ui import Button, View, Modal, TextInput
 from discord import message, emoji, Webhook, SyncWebhook
 from removebg import RemoveBg
 from context import *
@@ -89,10 +89,8 @@ dUtils = discordUtils(bot)
 
 with open("datas/usines.json") as f:
     production_data = json.load(f)
-
 with open("datas/bases.json") as f:
     base_data = json.load(f)
-
 with open("datas/main.json") as f:
     json_data = json.load(f)
     bat_types = json_data["bat_types"]
@@ -309,6 +307,30 @@ async def get_player_role(ctx):
 async def get_non_player_role(ctx):
     return ctx.guild.get_role(873955513921048646)
 
+class ConstructionForm(discord.ui.Modal, title="Données de construction"):
+
+    objectif = TextInput(label="Objectif d'habitants", placeholder="Ex: 200", required=True)
+    max_etages = TextInput(label="Nombre max d'étages", default="10", required=False)
+    max_apartments = TextInput(label="Nombre max de logements/étage", default="30", required=False)
+    prix_m2 = TextInput(label="Prix moyen au m²", default="1500", required=False)
+    taille_appt = TextInput(label="Taille moyenne des logements (en m²)", default="40", required=False)
+    type_murs = TextInput(label="Type de murs", default="béton", required=False)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        datas = {
+            "objectif": int(self.objectif.value),
+            "max_etages": int(self.max_etages.value or 10),
+            "max_apartments": int(self.max_apartments.value or 30),
+            "prix_moyen": int(self.prix_m2.value or 1500),
+            "taille_moyenne": int(self.taille_appt.value or 40),
+            "type_murs": self.type_murs.value or "béton",
+            "people_per_apartment": get_people_per_apartment(int(self.taille_appt.value or 40)),
+            "objectif_type": "habitants",
+            "prix_fondations": 50,
+        }
+
+        buildings = await calculate_buildings_from_datas(interaction, datas)
+        await send_building_summary(interaction, buildings, datas)
 
 @bot.command(
     name="construction_immeuble",
@@ -332,332 +354,101 @@ async def get_non_player_role(ctx):
     enabled=True,
     case_insensitive=True,
 )
-async def construction_immeuble(ctx) -> None:
-    if (
-        await dUtils.discord_input(
-            ctx,
-            "Bienvenue dans le programme de construction d'immeubles!\nVoulez-vous construire un immeuble par nombre d'habitants ou par coût de construction? (habitants/coût)",
-        )
-        == "habitants"
-    ):
-        buildings, datas = await calculate_by_population(ctx)
-    else:
-        buildings, datas = await calculate_by_budget(ctx)
+async def construction_immeuble(ctx: commands.Context):
+    await ctx.send("📋 Un formulaire va s'ouvrir pour configurer votre projet.")
+    await ctx.send_modal(ConstructionForm())
 
-    await ctx.send("Enregistrement des données...")
+# async def construction_immeuble(ctx) -> None:
+#     if (
+#         await dUtils.discord_input(
+#             ctx,
+#             "Bienvenue dans le programme de construction d'immeubles!\nVoulez-vous construire un immeuble par nombre d'habitants ou par coût de construction? (habitants/coût)",
+#         )
+#         == "habitants"
+#     ):
+#         buildings, datas = await calculate_by_population(ctx, dUtils)
+#     else:
+#         buildings, datas = await calculate_by_budget(ctx, dUtils)
 
-    total_construction_cost = sum(
-        building["construction_cost"] for building in buildings
-    )
-    total_logements = sum(building["nombre_logements"] for building in buildings)
-    total_etages = sum(building["nombre_etages"] for building in buildings)
-    total_habitants = sum(
-        building["nombre_logements"] * building["people_per_apartment"]
-        for building in buildings
-    )
+#     await ctx.send("Enregistrement des données...")
 
-    await ctx.send("<a:loading:1259247395603222600> Calcul en cours...")
-    answer = "\nBilan de la construction de l'immeuble:\n"
+#     total_construction_cost = sum(
+#         building["construction_cost"] for building in buildings
+#     )
+#     total_logements = sum(building["nombre_logements"] for building in buildings)
+#     total_etages = sum(building["nombre_etages"] for building in buildings)
+#     total_habitants = sum(
+#         building["nombre_logements"] * building["people_per_apartment"]
+#         for building in buildings
+#     )
 
-    for i, building in enumerate(buildings):
-        logements_par_etage = building["nombre_logements"] // building["nombre_etages"]
-        habitants_par_etage = logements_par_etage * building["people_per_apartment"]
-        if len(answer) > 1800 and len(buildings) < 20:
-            await ctx.send(answer)
-            answer = ""
-        answer += f"\n- Bâtiment {i + 1}:\n"
-        answer += f"  - Coût de construction: {convert(str(building['construction_cost']))} €\n"
-        answer += f"  - Nombre d'étages: {building['nombre_etages']}\n"
-        answer += f"  - Logements par étage: {logements_par_etage}\n"
-        answer += f"  - Habitants par étage: {habitants_par_etage}\n"
-        answer += f"  - Nombre total de logements: {building['nombre_logements']}\n"
-        answer += f"  - Nombre total d'habitants: {building['nombre_logements'] * building['people_per_apartment']}\n"
-        answer += f"  - Surface totale: {building['surface']} m²\n"
-        answer += f"  - Surface nette: {building['surface_net']} m²\n"
-        answer += f"  - Surface habitable: {building['surface_habitable']} m²\n"
-        answer += (
-            f"  - Surface nette habitable: {building['surface_net_habitable']} m²\n"
-        )
-        answer += (
-            f"  - Profondeur des fondations: {building['profondeur_fondation']} m\n"
-        )
+#     await ctx.send("<a:loading:1259247395603222600> Calcul en cours...")
+#     answer = "\nBilan de la construction de l'immeuble:\n"
 
-    if len(buildings) < 20:
-        await dUtils.send_long_message(ctx, answer)
-        answer = f"\n- **Bilan final:**\n  - Coût total de construction: {convert(str(total_construction_cost))} €\n"
-    else:
-        answer += f"\n- Coût total de construction: {convert(str(total_construction_cost))} €\n"
-    answer += f"  - Nombre total d'étages: {total_etages}\n"
-    answer += f"  - Nombre total de logements: {total_logements}\n"
-    answer += f"  - Nombre total d'habitants: {total_habitants}\n"
-    answer += f"  - Nombre moyen d'habitants par logement: {total_habitants / total_logements}\n"
-    answer += f"  - Surface totale brute: {sum(building['surface'] for building in buildings)} m²\n"
-    answer += f"  - Surface totale nette: {sum(building['surface_net'] for building in buildings)} m²\n"
-    answer += f"  - Surface totale habitable: {sum(building['surface_habitable'] for building in buildings)} m²\n"
-    answer += f"  - Surface totale nette habitable: {sum(building['surface_net_habitable'] for building in buildings)} m²\n"
-    answer += f"  - Moyenne du nombre d'étages par bâtiment: {total_etages / len(buildings)}\n"
-    answer += f"  - Nombre total de bâtiments: {len(buildings)}"
+#     for i, building in enumerate(buildings):
+#         logements_par_etage = building["nombre_logements"] // building["nombre_etages"]
+#         habitants_par_etage = logements_par_etage * building["people_per_apartment"]
+#         if len(answer) > 1800 and len(buildings) < 20:
+#             await ctx.send(answer)
+#             answer = ""
+#         answer += f"\n- Bâtiment {i + 1}:\n"
+#         answer += f"  - Coût de construction: {convert(str(building['construction_cost']))} €\n"
+#         answer += f"  - Nombre d'étages: {building['nombre_etages']}\n"
+#         answer += f"  - Logements par étage: {logements_par_etage}\n"
+#         answer += f"  - Habitants par étage: {habitants_par_etage}\n"
+#         answer += f"  - Nombre total de logements: {building['nombre_logements']}\n"
+#         answer += f"  - Nombre total d'habitants: {building['nombre_logements'] * building['people_per_apartment']}\n"
+#         answer += f"  - Surface totale: {building['surface']} m²\n"
+#         answer += f"  - Surface nette: {building['surface_net']} m²\n"
+#         answer += f"  - Surface habitable: {building['surface_habitable']} m²\n"
+#         answer += (
+#             f"  - Surface nette habitable: {building['surface_net_habitable']} m²\n"
+#         )
+#         answer += (
+#             f"  - Profondeur des fondations: {building['profondeur_fondation']} m\n"
+#         )
 
-    answer += f"\n- Paramètres utilisés:\n"
-    answer += f"  - Taille moyenne des appartements: {datas['taille_moyenne']} m²\n"
-    answer += f"  - Prix moyen du mètre carré: {datas['prix_moyen']} €\n"
-    answer += f"  - Type de murs: {datas['type_murs']}\n"
-    answer += f"  - Nombre maximum d'étages: {datas['max_etages']}\n"
-    answer += f"  - Nombre maximum de logements par étage: {datas['max_apartments']}\n"
-    answer += (
-        f"  - Nombre moyen d'habitants par logement: {datas['people_per_apartment']}\n"
-    )
-    if datas["objectif_type"] == "habitants":
-        answer += (
-            f"  - Objectif de nombre d'habitants: {convert(str(datas['objectif']))}\n"
-        )
-        answer += f"  - Dépassement de l'objectif: {total_habitants - datas['objectif']} habitants\n"
-    else:
-        answer += f"  - Objectif de coût de construction: {convert(str(datas['objectif']))} €\n"
-        answer += f"  - Dépassement de l'objectif: {total_construction_cost - datas['objectif']} €\n"
-    if len(buildings) < 20:
-        await dUtils.send_long_message(ctx, answer)
-    else:
-        with open("construction_immeuble.txt", "w") as f:
-            f.write(answer)
-        await ctx.send(file=discord.File("construction_immeuble.txt"))
-        os.remove("construction_immeuble.txt")
+#     if len(buildings) < 20:
+#         await dUtils.send_long_message(ctx, answer)
+#         answer = f"\n- **Bilan final:**\n  - Coût total de construction: {convert(str(total_construction_cost))} €\n"
+#     else:
+#         answer += f"\n- Coût total de construction: {convert(str(total_construction_cost))} €\n"
+#     answer += f"  - Nombre total d'étages: {total_etages}\n"
+#     answer += f"  - Nombre total de logements: {total_logements}\n"
+#     answer += f"  - Nombre total d'habitants: {total_habitants}\n"
+#     answer += f"  - Nombre moyen d'habitants par logement: {total_habitants / total_logements}\n"
+#     answer += f"  - Surface totale brute: {sum(building['surface'] for building in buildings)} m²\n"
+#     answer += f"  - Surface totale nette: {sum(building['surface_net'] for building in buildings)} m²\n"
+#     answer += f"  - Surface totale habitable: {sum(building['surface_habitable'] for building in buildings)} m²\n"
+#     answer += f"  - Surface totale nette habitable: {sum(building['surface_net_habitable'] for building in buildings)} m²\n"
+#     answer += f"  - Moyenne du nombre d'étages par bâtiment: {total_etages / len(buildings)}\n"
+#     answer += f"  - Nombre total de bâtiments: {len(buildings)}"
 
+#     answer += f"\n- Paramètres utilisés:\n"
+#     answer += f"  - Taille moyenne des appartements: {datas['taille_moyenne']} m²\n"
+#     answer += f"  - Prix moyen du mètre carré: {datas['prix_moyen']} €\n"
+#     answer += f"  - Type de murs: {datas['type_murs']}\n"
+#     answer += f"  - Nombre maximum d'étages: {datas['max_etages']}\n"
+#     answer += f"  - Nombre maximum de logements par étage: {datas['max_apartments']}\n"
+#     answer += (
+#         f"  - Nombre moyen d'habitants par logement: {datas['people_per_apartment']}\n"
+#     )
+#     if datas["objectif_type"] == "habitants":
+#         answer += (
+#             f"  - Objectif de nombre d'habitants: {convert(str(datas['objectif']))}\n"
+#         )
+#         answer += f"  - Dépassement de l'objectif: {total_habitants - datas['objectif']} habitants\n"
+#     else:
+#         answer += f"  - Objectif de coût de construction: {convert(str(datas['objectif']))} €\n"
+#         answer += f"  - Dépassement de l'objectif: {total_construction_cost - datas['objectif']} €\n"
+#     if len(buildings) < 20:
+#         await dUtils.send_long_message(ctx, answer)
+#     else:
+#         with open("construction_immeuble.txt", "w") as f:
+#             f.write(answer)
+#         await ctx.send(file=discord.File("construction_immeuble.txt"))
+#         os.remove("construction_immeuble.txt")
 
-async def calculate_by_population(ctx):
-    """
-    Asynchronously calculates the number of buildings required to meet a population objective based on user inputs.
-    Args:
-        ctx: The context in which the command was invoked.
-    Returns:
-        A tuple containing:
-            - A list of dictionaries, each representing a building with the following keys:
-                - 'nombre_etages': Number of floors in the building.
-                - 'nombre_logements': Number of apartments in the building.
-                - 'people_per_apartment': Number of people per apartment.
-                - 'surface': Total surface area of the building.
-                - 'surface_net': Net surface area per floor.
-                - 'surface_habitable': Habitable surface area of the building.
-                - 'surface_net_habitable': Net habitable surface area per floor.
-                - 'construction_cost': Total construction cost of the building.
-                - 'profondeur_fondation': Depth of the foundation.
-            - A dictionary containing the input data used for the calculations.
-    """
-    datas = {
-        "taille_moyenne": 40,
-        "prix_moyen": 1500,
-        "type_murs": "béton",
-        "max_etages": 10,
-        "max_apartments": 30,
-        "people_per_apartment": 4,
-        "objectif": 0,
-        "objectif_type": "habitants",
-        "prix_fondations": 50,
-    }
-    datas["objectif"] = int(
-        await dUtils.discord_input(ctx, "Entrez l'objectif de nombre d'habitants : ")
-    )
-    datas["max_etages"] = int(
-        await dUtils.discord_input(
-            ctx,
-            f"Entrez le nombre maximum d'étages (par défaut: {datas['max_etages']}): ",
-        )
-        or datas["max_etages"]
-    )
-    datas["max_apartments"] = int(
-        await dUtils.discord_input(
-            ctx,
-            f"Entrez le nombre maximum de logements par étage (par défaut: {datas['max_apartments']}): ",
-        )
-        or datas["max_apartments"]
-    )
-    datas["people_per_apartment"] = get_people_per_apartment(datas["taille_moyenne"])
-    datas["prix_moyen"] = int(
-        await dUtils.discord_input(
-            ctx,
-            f"Entrez le prix moyen du mètre carré (par défaut: {datas['prix_moyen']}): ",
-        )
-        or datas["prix_moyen"]
-    )
-
-    buildings = []
-    current_building = {
-        "nombre_etages": 1,
-        "nombre_logements": 1,
-        "people_per_apartment": datas["people_per_apartment"],
-        "surface": 0,
-        "surface_net": 0,
-        "surface_habitable": 0,
-        "surface_net_habitable": 0,
-        "construction_cost": 0,
-        "profondeur_fondation": 3,
-    }
-    actual_stage_logements = 0
-
-    while True:
-        ctx.author.send(
-            f"Calcul en cours... ({current_building['nombre_logements']} logements)"
-        )
-        total_area = calculate_total_area(
-            datas["taille_moyenne"], current_building["nombre_logements"]
-        )
-        current_building["surface"] = total_area
-        current_building["surface_net"] = round(
-            total_area / current_building["nombre_etages"]
-        )
-        construction_cost = calculate_construction_cost(
-            datas, total_area, current_building
-        )
-        current_building["construction_cost"] = construction_cost
-        current_building["surface_habitable"] = total_area - (total_area * 0.1)
-        current_building["surface_net_habitable"] = round(
-            current_building["surface_habitable"] / current_building["nombre_etages"]
-        )
-        current_building["profondeur_fondation"] = current_building["nombre_etages"] + 1
-
-        if (
-            sum(
-                building["nombre_logements"] * building["people_per_apartment"]
-                for building in buildings + [current_building]
-            )
-            >= datas["objectif"]
-        ):
-            buildings.append(current_building)
-            break
-
-        current_building["nombre_logements"] += 1
-        actual_stage_logements += 1
-        if actual_stage_logements >= datas["max_apartments"]:
-            if current_building["nombre_etages"] < datas["max_etages"]:
-                current_building["nombre_etages"] += 1
-                actual_stage_logements = 0
-            else:
-                buildings.append(current_building)
-                current_building = {
-                    "nombre_etages": 1,
-                    "nombre_logements": 1,
-                    "people_per_apartment": datas["people_per_apartment"],
-                    "surface": 0,
-                    "surface_net": 0,
-                    "surface_habitable": 0,
-                    "surface_net_habitable": 0,
-                    "construction_cost": 0,
-                    "profondeur_fondation": 3,
-                }
-
-    return buildings, datas
-
-
-async def calculate_by_budget(ctx):
-    """
-    Asynchronously calculates the number of buildings that can be constructed within a given budget.
-    Parameters:
-        ctx (Context): The context in which the command was invoked.
-    Returns:
-        tuple: A tuple containing:
-            - buildings (list): A list of dictionaries, each representing a building with the following keys:
-                - nombre_etages (int): Number of floors in the building.
-                - nombre_logements (int): Number of apartments in the building.
-                - people_per_apartment (int): Number of people per apartment.
-                - surface (float): Total surface area of the building.
-                - surface_net (float): Net surface area per floor.
-                - surface_habitable (float): Habitable surface area of the building.
-                - surface_net_habitable (float): Net habitable surface area per floor.
-                - construction_cost (float): Total construction cost of the building.
-                - profondeur_fondation (int): Depth of the foundation.
-            - datas (dict): A dictionary containing the input data and calculated values.
-    """
-    datas = {
-        "taille_moyenne": 40,
-        "prix_moyen": 1500,
-        "type_murs": "béton",
-        "max_etages": 10,
-        "max_apartments": 30,
-        "people_per_apartment": 4,
-        "objectif": 0,
-        "objectif_type": "budget",
-        "prix_fondations": 50,
-    }
-    datas["objectif"] = int(
-        await dUtils.discord_input(ctx, "Entrez l'objectif de prix : ")
-    )
-    datas["max_etages"] = int(
-        await dUtils.discord_input(
-            ctx,
-            f"Entrez le nombre maximum d'étages (par défaut: {datas['max_etages']}): ",
-        )
-        or datas["max_etages"]
-    )
-    datas["max_apartments"] = int(
-        await dUtils.discord_input(
-            ctx,
-            f"Entrez le nombre maximum de logements par étage (par défaut: {datas['max_apartments']}): ",
-        )
-        or datas["max_apartments"]
-    )
-    datas["people_per_apartment"] = get_people_per_apartment(datas["taille_moyenne"])
-
-    buildings = []
-    current_building = {
-        "nombre_etages": 1,
-        "nombre_logements": 1,
-        "people_per_apartment": datas["people_per_apartment"],
-        "surface": 0,
-        "surface_net": 0,
-        "surface_habitable": 0,
-        "surface_net_habitable": 0,
-        "construction_cost": 0,
-        "profondeur_fondation": 3,
-    }
-    actual_stage_logements = 0
-    while True:
-        total_area = calculate_total_area(
-            datas["taille_moyenne"], current_building["nombre_logements"]
-        )
-        current_building["surface"] = total_area
-        current_building["surface_net"] = round(
-            total_area / current_building["nombre_etages"]
-        )
-        construction_cost = calculate_construction_cost(
-            datas, total_area, current_building
-        )
-        current_building["construction_cost"] = construction_cost
-        current_building["surface_habitable"] = total_area - (total_area * 0.1)
-        current_building["surface_net_habitable"] = round(
-            current_building["surface_habitable"] / current_building["nombre_etages"]
-        )
-        current_building["profondeur_fondation"] = current_building["nombre_etages"] + 1
-
-        if (
-            sum(
-                building["construction_cost"]
-                for building in buildings + [current_building]
-            )
-            >= datas["objectif"]
-        ):
-            buildings.append(current_building)
-            break
-
-        current_building["nombre_logements"] += 1
-        actual_stage_logements += 1
-        if actual_stage_logements >= datas["max_apartments"]:
-            if current_building["nombre_etages"] < datas["max_etages"]:
-                current_building["nombre_etages"] += 1
-                actual_stage_logements = 0
-            else:
-                buildings.append(current_building)
-                current_building = {
-                    "nombre_etages": 1,
-                    "nombre_logements": 1,
-                    "people_per_apartment": datas["people_per_apartment"],
-                    "surface": 0,
-                    "surface_net": 0,
-                    "surface_habitable": 0,
-                    "surface_net_habitable": 0,
-                    "construction_cost": 0,
-                    "profondeur_fondation": 3,
-                }
-    return buildings, datas
 
 
 ## Eco
@@ -1968,15 +1759,6 @@ async def reformat_rp_channels(ctx):
             # await channel.edit(name=new_name)
     await ctx.send("Fait")
 
-
-def parse_embed_json(json_file):
-    embeds_json = json.loads(json_file)["embeds"]
-
-    for embed_json in embeds_json:
-        embed = discord.Embed().from_dict(embed_json)
-        yield embed
-
-
 @bot.command()
 async def send_rules(ctx, webhook_url: str):
     if ctx.author.id not in bi_admins_id:
@@ -1999,7 +1781,7 @@ async def send_rules(ctx, webhook_url: str):
         with open(f"rules/{rule}", "r") as file:
             r_file = file.read()
             rules_webhooks[rule] = list(
-                parse_embed_json(r_file)
+                dUtils.parse_embed_json(r_file)
             )  # Convertir en liste d'embeds
             rules_titles[rule] = json.loads(r_file)["content"]
 

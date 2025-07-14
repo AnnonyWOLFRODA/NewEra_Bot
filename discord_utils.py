@@ -71,4 +71,10 @@ class discordUtils:
                 async for user in reaction.users():
                     users.append(user)
         return users
+    
+    def parse_embed_json(json_file):
+        embeds_json = json.loads(json_file)["embeds"]
 
+        for embed_json in embeds_json:
+            embed = discord.Embed().from_dict(embed_json)
+            yield embed
