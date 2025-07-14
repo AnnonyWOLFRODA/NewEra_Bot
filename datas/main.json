@@ -79,5 +79,19 @@
         "money": 500000000,
         "pd": 4,
         "pp": 2
+    },
+    "buildQuality": {
+        "walls": {
+            "1": "béton",
+            "2": "brique",
+            "3": "acier",
+            "4": "acier renforcé"
+        },
+        "price": {
+            "1": 1500,
+            "2": 2000,
+            "3": 2500,
+            "4": 3000
+        }
     }
 }

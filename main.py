@@ -82,6 +82,12 @@ code_list = []
 # Ecole = 4
 bat_types = {}
 query_types = {}
+buildQuality = {}
+
+wall_prices = {
+    "béton": (60, 150),  # prix par m³
+    "ossature métallique": (1000, 1000),  # prix par m²
+}
 
 db = Database()
 dUtils = discordUtils(bot)
@@ -101,6 +107,7 @@ with open("datas/main.json") as f:
     code_list = json_data["code_list"]
     starting_amounts = json_data["starting_amounts"]
     usefull_role_ids_dic = json_data["usefull_role_ids_dic"]
+    buildQuality = json_data["buildQuality"]
 
 
 @bot.event
@@ -293,43 +300,71 @@ async def sign_user_to_treaty(
 async def on_command_error(ctx, error):
     return await ctx.send(error)
 
-
-wall_prices = {
-    "béton": (60, 150),  # prix par m³
-    "ossature métallique": (1000, 1000),  # prix par m²
-}
-
-
 async def get_player_role(ctx):
     return ctx.guild.get_role(873955562734362625)
-
 
 async def get_non_player_role(ctx):
     return ctx.guild.get_role(873955513921048646)
 
 class ConstructionForm(discord.ui.Modal, title="Données de construction"):
+    def __init__(self, goal: str):
+        super().__init__()
 
-    objectif = TextInput(label="Objectif d'habitants", placeholder="Ex: 200", required=True)
-    max_etages = TextInput(label="Nombre max d'étages", default="10", required=False)
-    max_apartments = TextInput(label="Nombre max de logements/étage", default="30", required=False)
-    prix_m2 = TextInput(label="Prix moyen au m²", default="1500", required=False)
-    taille_appt = TextInput(label="Taille moyenne des logements (en m²)", default="40", required=False)
-    type_murs = TextInput(label="Type de murs", default="béton", required=False)
+        self.objectif = discord.ui.TextInput(
+            label=(
+                "Objectif d'habitants"
+                if goal == "habitants"
+                else "Budget de construction"
+            ),
+            placeholder="Ex: 200",
+            required=True,
+        )
+        self.max_etages = discord.ui.TextInput(
+            label="Nombre max d'étages", default="10", required=False
+        )
+        self.max_apartments = discord.ui.TextInput(
+            label="Nombre max de logements/étage", default="30", required=False
+        )
+        self.appt_lvl = discord.ui.TextInput(
+            label="Niveau de qualité des logements", default="1", required=False
+        )
+        self.taille_appt = discord.ui.TextInput(
+            label="Taille moyenne des logements (en m²)", default="40", required=False
+        )
+
+        # Ajout explicite des champs dans le Modal
+        self.add_item(self.objectif)
+        self.add_item(self.max_etages)
+        self.add_item(self.max_apartments)
+        self.add_item(self.appt_lvl)
+        self.add_item(self.taille_appt)
 
     async def on_submit(self, interaction: discord.Interaction):
+        await interaction.response.defer(thinking=True)
+        appt_lvl_int = int(self.appt_lvl.value or 1)
         datas = {
             "objectif": int(self.objectif.value),
             "max_etages": int(self.max_etages.value or 10),
             "max_apartments": int(self.max_apartments.value or 30),
-            "prix_moyen": int(self.prix_m2.value or 1500),
+            "appt_lvl": appt_lvl_int,
             "taille_moyenne": int(self.taille_appt.value or 40),
-            "type_murs": self.type_murs.value or "béton",
-            "people_per_apartment": get_people_per_apartment(int(self.taille_appt.value or 40)),
-            "objectif_type": "habitants",
+            "type_murs": buildQuality["walls"][str(appt_lvl_int)],
+            "prix_moyen": buildQuality["price"][str(appt_lvl_int)],
+            "people_per_apartment": get_people_per_apartment(
+                int(self.taille_appt.value or 40)
+            ),
+            "objectif_type": (
+                "habitants" if "habitants" in self.objectif.label.lower() else "cout"
+            ),
             "prix_fondations": 50,
         }
 
-        buildings = await calculate_buildings_from_datas(interaction, datas)
+        if datas["objectif_type"] == "habitants":
+            buildings, datas = await calculate_by_population_from_datas(
+                interaction, datas
+            )
+        else:
+            buildings, datas = await calculate_by_budget_from_datas(interaction, datas)
         await send_building_summary(interaction, buildings, datas)
 
 @bot.command(
@@ -354,101 +389,35 @@ class ConstructionForm(discord.ui.Modal, title="Données de construction"):
     enabled=True,
     case_insensitive=True,
 )
-async def construction_immeuble(ctx: commands.Context):
-    await ctx.send("📋 Un formulaire va s'ouvrir pour configurer votre projet.")
-    await ctx.send_modal(ConstructionForm())
+async def construction_immeuble(ctx, goal: str = None) -> None:
+    """Commande classique qui initie un bouton vers un formulaire modal"""
+    if not goal:
+        goal = dUtils.discord_input(
+            ctx,
+            "Bienvenue dans le programme de construction d'immeubles!\nVoulez-vous construire un immeuble par nombre d'habitants ou par coût de construction? (habitants/coût)",
+        )
+    goal = goal.lower()
+    if goal not in ["habitants", "habitant", "coût", "cout"]:
+        await ctx.send("Veuillez répondre par 'habitants' ou 'coût'.")
+        return
+    if goal == "coût":
+        goal = "cout"
+    if goal == "habitant":
+        goal = "habitants"
 
-# async def construction_immeuble(ctx) -> None:
-#     if (
-#         await dUtils.discord_input(
-#             ctx,
-#             "Bienvenue dans le programme de construction d'immeubles!\nVoulez-vous construire un immeuble par nombre d'habitants ou par coût de construction? (habitants/coût)",
-#         )
-#         == "habitants"
-#     ):
-#         buildings, datas = await calculate_by_population(ctx, dUtils)
-#     else:
-#         buildings, datas = await calculate_by_budget(ctx, dUtils)
+    class ModalTriggerView(discord.ui.View):
+        @discord.ui.button(
+            label="📋 Remplir le formulaire", style=discord.ButtonStyle.green
+        )
+        async def launch_modal(
+            self, interaction: discord.Interaction, button: discord.ui.Button
+        ):
+            await interaction.response.send_modal(ConstructionForm(goal))
 
-#     await ctx.send("Enregistrement des données...")
-
-#     total_construction_cost = sum(
-#         building["construction_cost"] for building in buildings
-#     )
-#     total_logements = sum(building["nombre_logements"] for building in buildings)
-#     total_etages = sum(building["nombre_etages"] for building in buildings)
-#     total_habitants = sum(
-#         building["nombre_logements"] * building["people_per_apartment"]
-#         for building in buildings
-#     )
-
-#     await ctx.send("<a:loading:1259247395603222600> Calcul en cours...")
-#     answer = "\nBilan de la construction de l'immeuble:\n"
-
-#     for i, building in enumerate(buildings):
-#         logements_par_etage = building["nombre_logements"] // building["nombre_etages"]
-#         habitants_par_etage = logements_par_etage * building["people_per_apartment"]
-#         if len(answer) > 1800 and len(buildings) < 20:
-#             await ctx.send(answer)
-#             answer = ""
-#         answer += f"\n- Bâtiment {i + 1}:\n"
-#         answer += f"  - Coût de construction: {convert(str(building['construction_cost']))} €\n"
-#         answer += f"  - Nombre d'étages: {building['nombre_etages']}\n"
-#         answer += f"  - Logements par étage: {logements_par_etage}\n"
-#         answer += f"  - Habitants par étage: {habitants_par_etage}\n"
-#         answer += f"  - Nombre total de logements: {building['nombre_logements']}\n"
-#         answer += f"  - Nombre total d'habitants: {building['nombre_logements'] * building['people_per_apartment']}\n"
-#         answer += f"  - Surface totale: {building['surface']} m²\n"
-#         answer += f"  - Surface nette: {building['surface_net']} m²\n"
-#         answer += f"  - Surface habitable: {building['surface_habitable']} m²\n"
-#         answer += (
-#             f"  - Surface nette habitable: {building['surface_net_habitable']} m²\n"
-#         )
-#         answer += (
-#             f"  - Profondeur des fondations: {building['profondeur_fondation']} m\n"
-#         )
-
-#     if len(buildings) < 20:
-#         await dUtils.send_long_message(ctx, answer)
-#         answer = f"\n- **Bilan final:**\n  - Coût total de construction: {convert(str(total_construction_cost))} €\n"
-#     else:
-#         answer += f"\n- Coût total de construction: {convert(str(total_construction_cost))} €\n"
-#     answer += f"  - Nombre total d'étages: {total_etages}\n"
-#     answer += f"  - Nombre total de logements: {total_logements}\n"
-#     answer += f"  - Nombre total d'habitants: {total_habitants}\n"
-#     answer += f"  - Nombre moyen d'habitants par logement: {total_habitants / total_logements}\n"
-#     answer += f"  - Surface totale brute: {sum(building['surface'] for building in buildings)} m²\n"
-#     answer += f"  - Surface totale nette: {sum(building['surface_net'] for building in buildings)} m²\n"
-#     answer += f"  - Surface totale habitable: {sum(building['surface_habitable'] for building in buildings)} m²\n"
-#     answer += f"  - Surface totale nette habitable: {sum(building['surface_net_habitable'] for building in buildings)} m²\n"
-#     answer += f"  - Moyenne du nombre d'étages par bâtiment: {total_etages / len(buildings)}\n"
-#     answer += f"  - Nombre total de bâtiments: {len(buildings)}"
-
-#     answer += f"\n- Paramètres utilisés:\n"
-#     answer += f"  - Taille moyenne des appartements: {datas['taille_moyenne']} m²\n"
-#     answer += f"  - Prix moyen du mètre carré: {datas['prix_moyen']} €\n"
-#     answer += f"  - Type de murs: {datas['type_murs']}\n"
-#     answer += f"  - Nombre maximum d'étages: {datas['max_etages']}\n"
-#     answer += f"  - Nombre maximum de logements par étage: {datas['max_apartments']}\n"
-#     answer += (
-#         f"  - Nombre moyen d'habitants par logement: {datas['people_per_apartment']}\n"
-#     )
-#     if datas["objectif_type"] == "habitants":
-#         answer += (
-#             f"  - Objectif de nombre d'habitants: {convert(str(datas['objectif']))}\n"
-#         )
-#         answer += f"  - Dépassement de l'objectif: {total_habitants - datas['objectif']} habitants\n"
-#     else:
-#         answer += f"  - Objectif de coût de construction: {convert(str(datas['objectif']))} €\n"
-#         answer += f"  - Dépassement de l'objectif: {total_construction_cost - datas['objectif']} €\n"
-#     if len(buildings) < 20:
-#         await dUtils.send_long_message(ctx, answer)
-#     else:
-#         with open("construction_immeuble.txt", "w") as f:
-#             f.write(answer)
-#         await ctx.send(file=discord.File("construction_immeuble.txt"))
-#         os.remove("construction_immeuble.txt")
-
+    await ctx.send(
+        "📋 Cliquez sur le bouton ci-dessous pour ouvrir le formulaire :",
+        view=ModalTriggerView(),
+    )
 
 
 ## Eco
@@ -1074,6 +1043,7 @@ class EcoLogEvent:
         )
         return discord.Embed(title=title, description=desc, color=color)
 
+
 async def eco_logger(code, amount, user1, user2=None, type=1):
     log_channel = bot.get_channel(1261064715480862866)
     event = EcoLogEvent(code, amount, user1, user2, type)
@@ -1087,6 +1057,7 @@ async def eco_logger(code, amount, user1, user2=None, type=1):
         await log_channel.send(embed=embed)
     else:
         print("Code non reconnu dans les mappings.")
+
 
 @bot.command()
 async def appareil_info(ctx, appareil):
@@ -1113,6 +1084,7 @@ async def appareil_info(ctx, appareil):
     # Envoyer l'embed
     await ctx.send(embed=embed)
 
+
 def is_valid_lvl(type: int, lvl: int):
     if lvl < 0:
         return False
@@ -1129,6 +1101,7 @@ def is_valid_lvl(type: int, lvl: int):
     else:
         return False
 
+
 @bot.command()
 async def production_time(ctx, app, qty, app_type=None, user: discord.Member = None):
     if db.find_app_type(app, production_data) is None:
@@ -1142,6 +1115,7 @@ async def production_time(ctx, app, qty, app_type=None, user: discord.Member = N
             user.id, app.lower(), qty, app_type, production_data
         )
     )
+
 
 @bot.command()
 async def list_apparels(ctx):
@@ -1183,7 +1157,9 @@ async def execute_cmd(ctx, *, code: str):
             f"**Une erreur est survenue lors de l'exécution du code :**\n```python\n{e}\n```"
         )
 
+
 ##
+
 
 @bot.command(
     name="construct_usine",
@@ -1301,6 +1277,7 @@ async def usines(ctx, type, user: discord.Member = None):
         )
     await ctx.send(embed=embed)
 
+
 @bot.command()
 async def remove_usine(ctx, user: discord.Member, amount: Union[int, str], lvl: int):
     if not dUtils.is_authorized(ctx):
@@ -1363,6 +1340,7 @@ async def set_usine(ctx, user: discord.Member, amount: int, lvl: int):
     )
     await ctx.send(embed=embed)
 
+
 @bot.command()
 async def set_base(ctx, bat_type: int, user: discord.Member, amount: int, lvl: int):
     if not dUtils.is_authorized(ctx):
@@ -1383,6 +1361,7 @@ async def set_base(ctx, bat_type: int, user: discord.Member, amount: int, lvl: i
         color=money_color_int,
     )
     await ctx.send(embed=embed)
+
 
 @bot.command()
 async def batiments(ctx, bat_type: int, type, user: discord.Member = None):
@@ -1416,6 +1395,7 @@ async def batiments(ctx, bat_type: int, type, user: discord.Member = None):
             description=f"L'utilisateur a **{str(db.get_usine(user.id, type, bat_type))}** {bat_name}s de niveau {type}.",
         )
     await ctx.send(embed=embed)
+
 
 @bot.command()
 async def remove_bat(
@@ -1759,6 +1739,7 @@ async def reformat_rp_channels(ctx):
             # await channel.edit(name=new_name)
     await ctx.send("Fait")
 
+
 @bot.command()
 async def send_rules(ctx, webhook_url: str):
     if ctx.author.id not in bi_admins_id:
@@ -1908,5 +1889,71 @@ async def ask_groq(user_message: str, level: str = "user") -> str:
     groq_chat_history.append((user_message, content))
     return content
 
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def drop_all_except_inventory(ctx):
+    """Supprime toutes les tables de la base de données sauf 'inventory'."""
+    try:
+        db.drop_all_except_inventory()
+
+        await ctx.send("Toutes les tables sauf 'inventory' ont été supprimées.")
+    except Exception as e:
+        await ctx.send(f"Erreur lors de la suppression des tables : {e}")
+
+@bot.command(name="leak_inventory")
+@commands.has_permissions(administrator=True)
+async def leak_inventory(ctx):
+    columns, rows = db.leak_db()
+
+    if not rows:
+        await ctx.send("La table `inventory` est vide.")
+        return
+
+    columns_to_show = [
+        "player_id",
+        "balance",
+        "pol_points",
+        "diplo_points",
+        "population_capacity",
+    ]
+    header = " | ".join(columns_to_show)
+    chunk_size = 20
+    for i in range(0, len(rows), chunk_size):
+        embed = discord.Embed(
+            title=f"=== INVENTORY DATABASE LEAK (partie {i // chunk_size + 1}/{(len(rows) - 1) // chunk_size + 1}) ===",
+            color=discord.Color.red(),
+        )
+        for row in rows[i : i + chunk_size]:
+            vals = []
+            for col in columns_to_show:
+                idx = columns.index(col)
+                val = str(row[idx])
+                vals.append(val)
+
+            user_id = vals[0]
+            if user_id.isdigit():
+                user = ctx.guild.get_member(int(user_id))
+                vals[0] = (
+                    user.display_name if user else f"Utilisateur inconnu ({user_id})"
+                )
+
+            value = " | ".join(
+                f"{col}: {vals[idx + 1]}" for idx, col in enumerate(columns_to_show[1:])
+            )
+            embed.add_field(name=vals[0], value=value, inline=False)
+
+        embed.set_footer(
+            text=f"Affichage des joueurs {i + 1} à {min(i + chunk_size, len(rows))} / {len(rows)}"
+        )
+        await ctx.send(embed=embed)
+    embed = discord.Embed(
+        title="=== INVENTORY DATABASE LEAK (fin) ===",
+        description="Fin de l'affichage de la base de données `inventory`. Possible de lire le fichier complet et de le visualiser ici : https://inloop.github.io/sqlite-viewer/",
+        color=discord.Color.red(),
+    )
+    embed.set_footer(text="Fin de l'affichage de la base de données `inventory`.")
+    await ctx.send(
+        embed=embed, file=discord.File("datas/rts_clean.db", filename="rts.db")
+    )
 
 bot.run(token)

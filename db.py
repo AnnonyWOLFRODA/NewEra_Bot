@@ -16,13 +16,21 @@ class Database:
 
     def future_db(self):
         print(
-            """ 
+        """ 
         CREATE TABLE IF NOT EXISTS Countries (
             country_id TEXT PRIMARY KEY,             -- Identifiant unique du pays
             name TEXT NOT NULL,                      -- Nom du pays
             public_channel_id TEXT NOT NULL,         -- ID du salon public (NON NULLABLE)
             secret_channel_id TEXT,                  -- ID du salon secret (NULLABLE)
             player_id TEXT                           -- ID du joueur qui contrôle le pays (NULL si aucun joueur)
+        );
+        CREATE TABLE IF NOT EXISTS Regions (
+            region_id TEXT PRIMARY KEY,
+            country_id TEXT NOT NULL,                  -- Pour rattacher la région à un pays
+            name TEXT NOT NULL,                        -- Nom de la région
+            population INTEGER DEFAULT 0 NOT NULL,
+            FOREIGN KEY (country_id) REFERENCES Countries(country_id)
+                ON DELETE CASCADE
         );
         CREATE TABLE IF NOT EXISTS Inventory (
             country_id TEXT PRIMARY KEY,             -- Clé étrangère liée au pays
@@ -35,12 +43,12 @@ class Database:
                 ON DELETE CASCADE
         );
         CREATE TABLE IF NOT EXISTS Structures (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,     -- ID unique de la structure
-            country_id TEXT NOT NULL,                 -- Clé étrangère vers le pays
-            type TEXT NOT NULL CHECK (type IN ('Usine', 'Base', 'École')), -- Type de structure
-            specialization TEXT NOT NULL CHECK (specialization IN ('Terrestre', 'Aérienne', 'Navale')), -- Spécialisation
-            level INTEGER NOT NULL DEFAULT 1,         -- Niveau de la structure
-            FOREIGN KEY (country_id) REFERENCES Countries(country_id)
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            region_id TEXT NOT NULL,
+            type TEXT NOT NULL CHECK (type IN ('Usine', 'Base', 'École')),
+            specialization TEXT NOT NULL CHECK (specialization IN ('Terrestre', 'Aérienne', 'Navale')),
+            level INTEGER NOT NULL DEFAULT 1,
+            FOREIGN KEY (region_id) REFERENCES Regions(region_id)
                 ON DELETE CASCADE
         );
         CREATE TABLE IF NOT EXISTS Stats (
@@ -573,3 +581,28 @@ class Database:
                 if apparel.lower() == app_name.lower():
                     return app_type
         return None
+    
+    def leak_db(self):
+        """Leak the database content, renvoie colonnes et lignes."""
+        self.cur.execute("SELECT * FROM inventory")
+        rows = self.cur.fetchall()
+        columns = [desc[0] for desc in self.cur.description]
+        return columns, rows
+    
+    def drop_all_except_inventory(db_path="datas/rts_clean.db"):
+        conn = sqlite3.connect(db_path)
+        cur = conn.cursor()
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = [row[0] for row in cur.fetchall()]
+        tables_to_drop = [
+            t for t in tables if t != "inventory" and not t.startswith("sqlite_")
+        ]
+        cur.execute("PRAGMA foreign_keys = OFF;")
+        for table in tables_to_drop:
+            print(f"Suppression de la table: {table}")
+            cur.execute(f"DROP TABLE IF EXISTS {table};")
+        cur.execute("PRAGMA foreign_keys = ON;")
+        conn.commit()
+        conn.close()
+        print("Suppression terminée.")
+

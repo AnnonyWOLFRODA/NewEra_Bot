@@ -55,3 +55,492 @@ INFO:discord.client:logging in using static token
 INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 4075a0a0a8229a393a733335e73693e7).
 INFO:discord.client:logging in using static token
 INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 44ec58e13b734923eeed2f8e513d5613).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 486f4c3fa845f960d1765bd2ced674e8).
+ERROR:discord.ui.view:Ignoring exception in view <ModalTriggerView timeout=180.0 children=1> for item <Button style=<ButtonStyle.success: 3> url=None disabled=False label='📋 Remplir le formulaire' emoji=None row=None>
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/view.py", line 427, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 362, in launch_modal
+    await interaction.response.send_modal(ConstructionForm())
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 137, in __init__
+    super().__init__(timeout=timeout)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/view.py", line 186, in __init__
+    self.__weights = _ViewWeights(self._children)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/view.py", line 99, in __init__
+    self.add_item(item)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/view.py", line 116, in add_item
+    index = self.find_open_space(item)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/view.py", line 106, in find_open_space
+    raise ValueError('could not find open space for item')
+ValueError: could not find open space for item
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 0362227e0cd60d73f6ad5dcb2745a873).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 34e457180057aaf7c07f79606c878dc8).
+ERROR:discord.ui.view:Ignoring exception in view <ModalTriggerView timeout=180.0 children=1> for item <Button style=<ButtonStyle.success: 3> url=None disabled=False label='📋 Remplir le formulaire' emoji=None row=None>
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/view.py", line 427, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 362, in launch_modal
+    await interaction.response.send_modal(ConstructionForm())
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 137, in __init__
+    super().__init__(timeout=timeout)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/view.py", line 186, in __init__
+    self.__weights = _ViewWeights(self._children)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/view.py", line 99, in __init__
+    self.add_item(item)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/view.py", line 116, in add_item
+    index = self.find_open_space(item)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/view.py", line 106, in find_open_space
+    raise ValueError('could not find open space for item')
+ValueError: could not find open space for item
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 8d71f2171dad74fa528cb22f6b432c89).
+ERROR:discord.ui.view:Ignoring exception in view <ModalTriggerView timeout=180.0 children=1> for item <Button style=<ButtonStyle.success: 3> url=None disabled=False label='📋 Remplir le formulaire' emoji=None row=None>
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/view.py", line 427, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 371, in launch_modal
+    await interaction.response.send_modal(ConstructionForm())
+  File "/home/ubuntu/Bots/NEBot/main.py", line 326, in __init__
+    self.add_item(self.type_murs)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/view.py", line 326, in add_item
+    self.__weights.add_item(item)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/view.py", line 116, in add_item
+    index = self.find_open_space(item)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/view.py", line 106, in find_open_space
+    raise ValueError('could not find open space for item')
+ValueError: could not find open space for item
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 1c8b88a134712401017114a6e82d98b1).
+ERROR:discord.ui.view:Ignoring exception in view <ModalTriggerView timeout=180.0 children=1> for item <Button style=<ButtonStyle.success: 3> url=None disabled=False label='📋 Remplir le formulaire' emoji=None row=None>
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/view.py", line 427, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 397, in launch_modal
+    await interaction.response.send_modal(ConstructionForm())
+  File "/home/ubuntu/Bots/NEBot/main.py", line 351, in __init__
+    self.add_item(self.type_murs)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/view.py", line 326, in add_item
+    self.__weights.add_item(item)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/view.py", line 116, in add_item
+    index = self.find_open_space(item)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/view.py", line 106, in find_open_space
+    raise ValueError('could not find open space for item')
+ValueError: could not find open space for item
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 8d3df81636afa318b0942b12fd0a83c6).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 55e3dc46aae784d1baa6650498dded84).
+ERROR:discord.ui.modal:Ignoring exception in modal <ConstructionForm timeout=None children=5>:
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 363, in on_submit
+    buildings = await calculate_buildings_from_datas(interaction, datas)
+NameError: name 'calculate_buildings_from_datas' is not defined
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: d8675075a86b13fa379af42752305d8b).
+ERROR:discord.ui.modal:Ignoring exception in modal <ConstructionForm timeout=None children=5>:
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 367, in on_submit
+    buildings, datas = await calculate_by_budget_from_datas(interaction, datas)
+NameError: name 'calculate_by_budget_from_datas' is not defined
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 5b0dd63fb36995be204625276a9331e3).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 9141f983dc33cb9d512bfc149a80e728).
+ERROR:discord.ui.modal:Ignoring exception in modal <ConstructionForm timeout=None children=5>:
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 369, in on_submit
+    await send_building_summary(interaction, buildings, datas)
+NameError: name 'send_building_summary' is not defined
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 91421fbf7d5038d905a93711b88c3a12).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 76e11835eabe16c57cd972d5d43b112e).
+ERROR:discord.ui.modal:Ignoring exception in modal <ConstructionForm timeout=None children=5>:
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 369, in on_submit
+    await send_building_summary(interaction, buildings, datas)
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 447, in send_building_summary
+    await interaction.followup.send(answer)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/webhook/async_.py", line 1805, in send
+    data = await adapter.execute_webhook(
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/webhook/async_.py", line 219, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10015): Unknown Webhook
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 001ad86bf0f1995604ac848d924c0a6f).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: b038e4099389be71965908016030c9bb).
+ERROR:discord.ui.modal:Ignoring exception in modal <ConstructionForm timeout=None children=5>:
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 369, in on_submit
+    await send_building_summary(interaction, buildings, datas)
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 446, in send_building_summary
+    await interaction.followup.send(answer)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/webhook/async_.py", line 1805, in send
+    data = await adapter.execute_webhook(
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/webhook/async_.py", line 219, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10015): Unknown Webhook
+WARNING:discord.gateway:Shard ID None heartbeat blocked for more than 10 seconds.
+Loop thread traceback (most recent call last):
+  File "/home/ubuntu/Bots/NEBot/main.py", line 1964, in <module>
+    bot.run(token)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/client.py", line 860, in run
+    asyncio.run(runner())
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 1909, in _run_once
+    handle._run()
+  File "/usr/lib/python3.10/asyncio/events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 367, in on_submit
+    buildings, datas = await calculate_by_budget_from_datas(interaction, datas)
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 374, in calculate_by_budget_from_datas
+    total_cost = sum(
+
+WARNING:discord.gateway:Shard ID None heartbeat blocked for more than 20 seconds.
+Loop thread traceback (most recent call last):
+  File "/home/ubuntu/Bots/NEBot/main.py", line 1964, in <module>
+    bot.run(token)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/client.py", line 860, in run
+    asyncio.run(runner())
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 1909, in _run_once
+    handle._run()
+  File "/usr/lib/python3.10/asyncio/events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 367, in on_submit
+    buildings, datas = await calculate_by_budget_from_datas(interaction, datas)
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 374, in calculate_by_budget_from_datas
+    total_cost = sum(
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 374, in <genexpr>
+    total_cost = sum(
+
+WARNING:discord.gateway:Shard ID None heartbeat blocked for more than 30 seconds.
+Loop thread traceback (most recent call last):
+  File "/home/ubuntu/Bots/NEBot/main.py", line 1964, in <module>
+    bot.run(token)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/client.py", line 860, in run
+    asyncio.run(runner())
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 1909, in _run_once
+    handle._run()
+  File "/usr/lib/python3.10/asyncio/events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 367, in on_submit
+    buildings, datas = await calculate_by_budget_from_datas(interaction, datas)
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 374, in calculate_by_budget_from_datas
+    total_cost = sum(
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 374, in <genexpr>
+    total_cost = sum(
+
+WARNING:discord.gateway:Shard ID None heartbeat blocked for more than 40 seconds.
+Loop thread traceback (most recent call last):
+  File "/home/ubuntu/Bots/NEBot/main.py", line 1964, in <module>
+    bot.run(token)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/client.py", line 860, in run
+    asyncio.run(runner())
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 1909, in _run_once
+    handle._run()
+  File "/usr/lib/python3.10/asyncio/events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 367, in on_submit
+    buildings, datas = await calculate_by_budget_from_datas(interaction, datas)
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 374, in calculate_by_budget_from_datas
+    total_cost = sum(
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 374, in <genexpr>
+    total_cost = sum(
+
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 69b659657acf479f3715645bfe071b17).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 14a5908e52ec0413a8f3cd758d480e28).
+ERROR:discord.ui.modal:Ignoring exception in modal <ConstructionForm timeout=None children=5>:
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 369, in on_submit
+    await send_building_summary(interaction, buildings, datas)
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 486, in send_building_summary
+    await interaction.followup.send(file=discord.File("construction_immeuble.txt"))
+NameError: name 'discord' is not defined
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: a593acc8c8598baf2b98c272d82b93f7).
+ERROR:discord.ui.modal:Ignoring exception in modal <ConstructionForm timeout=None children=5>:
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 368, in on_submit
+    await interaction.response.defer()
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/interactions.py", line 661, in defer
+    await adapter.create_interaction_response(
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/webhook/async_.py", line 219, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+WARNING:discord.gateway:Shard ID None heartbeat blocked for more than 10 seconds.
+Loop thread traceback (most recent call last):
+  File "/home/ubuntu/Bots/NEBot/main.py", line 1966, in <module>
+    bot.run(token)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/client.py", line 860, in run
+    asyncio.run(runner())
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 1909, in _run_once
+    handle._run()
+  File "/usr/lib/python3.10/asyncio/events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 365, in on_submit
+    buildings, datas = await calculate_by_population_from_datas(interaction, datas)
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 195, in calculate_by_population_from_datas
+    sum(
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 195, in <genexpr>
+    sum(
+
+WARNING:discord.gateway:Shard ID None heartbeat blocked for more than 20 seconds.
+Loop thread traceback (most recent call last):
+  File "/home/ubuntu/Bots/NEBot/main.py", line 1966, in <module>
+    bot.run(token)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/client.py", line 860, in run
+    asyncio.run(runner())
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 1909, in _run_once
+    handle._run()
+  File "/usr/lib/python3.10/asyncio/events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 365, in on_submit
+    buildings, datas = await calculate_by_population_from_datas(interaction, datas)
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 195, in calculate_by_population_from_datas
+    sum(
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 195, in <genexpr>
+    sum(
+
+WARNING:discord.gateway:Shard ID None heartbeat blocked for more than 30 seconds.
+Loop thread traceback (most recent call last):
+  File "/home/ubuntu/Bots/NEBot/main.py", line 1966, in <module>
+    bot.run(token)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/client.py", line 860, in run
+    asyncio.run(runner())
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 1909, in _run_once
+    handle._run()
+  File "/usr/lib/python3.10/asyncio/events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 365, in on_submit
+    buildings, datas = await calculate_by_population_from_datas(interaction, datas)
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 195, in calculate_by_population_from_datas
+    sum(
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 195, in <genexpr>
+    sum(
+
+WARNING:discord.gateway:Shard ID None heartbeat blocked for more than 40 seconds.
+Loop thread traceback (most recent call last):
+  File "/home/ubuntu/Bots/NEBot/main.py", line 1966, in <module>
+    bot.run(token)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/client.py", line 860, in run
+    asyncio.run(runner())
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 1909, in _run_once
+    handle._run()
+  File "/usr/lib/python3.10/asyncio/events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 365, in on_submit
+    buildings, datas = await calculate_by_population_from_datas(interaction, datas)
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 195, in calculate_by_population_from_datas
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 195, in <genexpr>
+
+WARNING:discord.gateway:Shard ID None heartbeat blocked for more than 50 seconds.
+Loop thread traceback (most recent call last):
+  File "/home/ubuntu/Bots/NEBot/main.py", line 1966, in <module>
+    bot.run(token)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/client.py", line 860, in run
+    asyncio.run(runner())
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 1909, in _run_once
+    handle._run()
+  File "/usr/lib/python3.10/asyncio/events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 365, in on_submit
+    buildings, datas = await calculate_by_population_from_datas(interaction, datas)
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 195, in calculate_by_population_from_datas
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 195, in <genexpr>
+
+WARNING:discord.gateway:Shard ID None heartbeat blocked for more than 60 seconds.
+Loop thread traceback (most recent call last):
+  File "/home/ubuntu/Bots/NEBot/main.py", line 1966, in <module>
+    bot.run(token)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/client.py", line 860, in run
+    asyncio.run(runner())
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 1909, in _run_once
+    handle._run()
+  File "/usr/lib/python3.10/asyncio/events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 365, in on_submit
+    buildings, datas = await calculate_by_population_from_datas(interaction, datas)
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 195, in calculate_by_population_from_datas
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 195, in <genexpr>
+
+WARNING:discord.gateway:Shard ID None heartbeat blocked for more than 70 seconds.
+Loop thread traceback (most recent call last):
+  File "/home/ubuntu/Bots/NEBot/main.py", line 1966, in <module>
+    bot.run(token)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/client.py", line 860, in run
+    asyncio.run(runner())
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 1909, in _run_once
+    handle._run()
+  File "/usr/lib/python3.10/asyncio/events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 365, in on_submit
+    buildings, datas = await calculate_by_population_from_datas(interaction, datas)
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 195, in calculate_by_population_from_datas
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 195, in <genexpr>
+
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 813e75dea67b128727cb2684f9e36e63).
+ERROR:discord.ui.modal:Ignoring exception in modal <ConstructionForm timeout=None children=5>:
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/discord/ui/modal.py", line 188, in _scheduled_task
+    await self.on_submit(interaction)
+  File "/home/ubuntu/Bots/NEBot/main.py", line 369, in on_submit
+    await send_building_summary(interaction, buildings, datas)
+  File "/home/ubuntu/Bots/NEBot/construction.py", line 253, in send_building_summary
+    os.remove("construction_immeuble.txt")
+NameError: name 'os' is not defined
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: d5f6095151c08fdd3df2654bd2655431).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 59b2bb3e40e988a5393bfc74318310be).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 8a3ed86011fb6d9f0719332df30ff1d1).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 5bc62b6d8cd94e08409b43ca5f547241).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: c5bc3ce58ab434b5af3f71e52d930d02).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 8670c9861bce892d759a1ab065d18e12).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: d932ef844cedc4ddce7b42923a79924f).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 136b5af9f172aaf5a94168769ebe64c5).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 10da07647c7b581277ca210c5c0fb008).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: fa1ebdd73eb3e85a2d36861c63bf1b7e).
+INFO:discord.client:logging in using static token
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: d06e9903d5163d28a008140eb083cb67).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: ea8acdb190d84492631727a08879d003).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: e0d7652e4a563fefac25bc1c522c668e).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 2bdc8e3e16d22c728768fe82a55dee18).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 651861353f9ec0e452a82034157eba98).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 3f166b06bb9e94270bb56e1d443d0787).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: b77de8943db9b09f8b79ca16ff1a9205).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 947c72395fc8d506a7b5363148e9ac94).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 556cd9c269a3a7a9dc775c8c67b57a01).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: c369aafab9fe58bc060c7a12c7929f03).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 255bee252a5f394f6dd4f9e48c219156).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 18f363e911664b14fcd03fea505d8db3).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 2cb5572db0b5db017fcf1a939baca55e).
+INFO:discord.gateway:Shard ID None has successfully RESUMED session 2cb5572db0b5db017fcf1a939baca55e.
