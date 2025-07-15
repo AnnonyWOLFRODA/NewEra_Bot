@@ -176,7 +176,7 @@ class Database:
         return conn, cur
 
     def get_balance(self, country_id):
-        """Get the balance of a player from the database."""
+        """Get the balance of a country from the database."""
         self.cur.execute(
             "SELECT balance FROM Inventory WHERE country_id = ?", (country_id,)
         )
@@ -187,115 +187,97 @@ class Database:
 
     def get_points(self, country_id, type: int = 1):
         """Get the points of a player from the database."""
-        if type == 1:
-            self.cur.execute(
-                "SELECT pol_points FROM inventory WHERE player_id = ?", (player_id,)
-            )
-        else:
-            self.cur.execute(
-                "SELECT diplo_points FROM inventory WHERE player_id = ?", (player_id,)
-            )
-
+        column = "pol_points" if type == 1 else "diplo_points"
+        self.cur.execute(
+            f"SELECT {column} FROM Inventory WHERE country_id = ?", (country_id,)
+        )
         result = self.cur.fetchone()
         if result is not None:
             return result[0]
         else:
             return 0
 
-    def has_enough_balance(self, player_id, amount):
+    def has_enough_balance(self, country_id, amount):
         """Check if a player has enough balance."""
-        result = self.get_balance(player_id)
+        result = self.get_balance(country_id)
         if result is None:
             return False
         if amount <= 0:
             return False
         return int(result[0]) >= int(amount)
 
-    def has_enough_points(self, player_id, amount, type: int = 1):
+    def has_enough_points(self, country_id, amount, type: int = 1):
         """Check if a player has enough points."""
-        result = self.get_points(player_id, type)
+        result = self.get_points(country_id, type)
         if result is None:
             return False
         if amount <= 0:
             return False
         return result[0] >= amount
 
-    def set_balance(self, player_id, amount):
-        """Set the balance of a player."""
-        result = self.get_balance(player_id)
+    def set_balance(self, country_id, amount):
+        """Set the balance of a country."""
+        result = self.get_balance(country_id)
         if result is not None:
             self.cur.execute(
-                "UPDATE inventory SET balance = ? WHERE player_id = ?",
-                (amount, player_id),
+                "UPDATE Inventory SET balance = ? WHERE country_id = ?",
+                (amount, country_id),
             )
         else:
             self.cur.execute(
-                "INSERT INTO inventory (player_id, balance) VALUES (?, ?)",
-                (player_id, amount),
+                "INSERT INTO Inventory (country_id, balance) VALUES (?, ?)",
+                (country_id, amount),
             )
         self.conn.commit()
 
-    def set_points(self, player_id, amount, type: int = 1):
+    def set_points(self, country_id, amount, type: int = 1):
         """Set the points of a player."""
-        result = self.get_points(player_id, type)
-        if type == 1:
-            if result is not None:
-                self.cur.execute(
-                    "UPDATE inventory SET pol_points = ? WHERE player_id = ?",
-                    (amount, player_id),
-                )
-            else:
-                self.cur.execute(
-                    "INSERT INTO inventory (player_id, pol_points) VALUES (?, ?)",
-                    (player_id, amount),
-                )
+        result = self.get_points(country_id, type)
+        column = "pol_points" if type == 1 else "diplo_points"
+        if result is not None:
+            self.cur.execute(
+                f"UPDATE Inventory SET {column} = ? WHERE country_id = ?",
+                (amount, country_id),
+            )
         else:
-            if result is not None:
-                self.cur.execute(
-                    "UPDATE inventory SET diplo_points = ? WHERE player_id = ?",
-                    (amount, player_id),
-                )
-            else:
-                self.cur.execute(
-                    "INSERT INTO inventory (player_id, diplo_points) VALUES (?, ?)",
-                    (player_id, amount),
-                )
+            self.cur.execute(
+                f"INSERT INTO Inventory (country_id, {column}) VALUES (?, ?)",
+                (country_id, amount),
+            )
         self.conn.commit()
 
-    def give_balance(self, player_id, amount):
+    def give_balance(self, country_id, amount):
         """Give money to a player."""
-        result = self.get_balance(player_id)
+        result = self.get_balance(country_id)
         if result is not None:
-            new_balance = result[0] + amount
             self.cur.execute(
-                "UPDATE inventory SET balance = ? WHERE player_id = ?",
-                (new_balance, player_id),
+                "UPDATE Inventory SET balance = balance + ? WHERE country_id = ?",
+                (amount, country_id),
             )
         else:
             self.cur.execute(
-                "INSERT INTO inventory (player_id, balance) VALUES (?, ?)",
-                (player_id, amount),
+                "INSERT INTO Inventory (country_id, balance) VALUES (?, ?)",
+                (country_id, amount),
             )
         self.conn.commit()
 
-    def take_balance(self, player_id, amount):
-        """Take money from a player."""
-        result = self.get_balance(player_id)
+    def take_balance(self, country_id, amount):
+        """Take money from a country."""
+        result = self.get_balance(country_id)
         if result is not None:
-            new_balance = result[0] - amount
             self.cur.execute(
-                "UPDATE inventory SET balance = ? WHERE player_id = ?",
-                (new_balance, player_id),
+                "UPDATE Inventory SET balance = balance - ? WHERE country_id = ?",
+                (amount, country_id),
             )
         else:
             self.cur.execute(
-                "INSERT INTO inventory (player_id, balance) VALUES (?, ?)",
-                (player_id, -amount),
+                "INSERT INTO Inventory (country_id, balance) VALUES (?, ?)",
+                (country_id, -amount),
             )
         self.conn.commit()
 
-    def give_points(self, player_id: str, amount: int, type: int = 1):
-        """Ajoute des points politiques (type=1) ou diplomatiques (type=2) à un joueur."""
+    def give_points(self, country_id: str, amount: int, type: int = 1):
+        """Ajoute des points politiques (type=1) ou diplomatiques (type=2) à un pays."""
         column = "pol_points" if type == 1 else "diplo_points"
 
         result = self.get_points(player_id, type)
@@ -308,40 +290,20 @@ class Database:
         self.conn.commit()
 
     def take_points(self, player_id, amount, type: int = 1):
-        """Take points from a player."""
-        if type == 1:
+        """Take points from a country."""
+        result = self.get_points(player_id, type)
+        column = "pol_points" if type == 1 else "diplo_points"
+        
+        if result:
             self.cur.execute(
-                "SELECT pol_points FROM inventory WHERE player_id = ?", (player_id,)
+                f"UPDATE inventory SET {column} = {column} - ? WHERE player_id = ?",
+                (amount, player_id),
             )
         else:
             self.cur.execute(
-                "SELECT diplo_points FROM inventory WHERE player_id = ?", (player_id,)
+                f"INSERT INTO inventory (player_id, {column}) VALUES (?, ?)",
+                (player_id, -amount),
             )
-        result = self.cur.fetchone()
-        if type == 1:
-            if result:
-                new_balance = result[0] - amount
-                self.cur.execute(
-                    "UPDATE inventory SET pol_points = ? WHERE player_id = ?",
-                    (new_balance, player_id),
-                )
-            else:
-                self.cur.execute(
-                    "INSERT INTO inventory (player_id, pol_points) VALUES (?, ?)",
-                    (player_id, -amount),
-                )
-        else:
-            if result:
-                new_balance = result[0] - amount
-                self.cur.execute(
-                    "UPDATE inventory SET diplo_points = ? WHERE player_id = ?",
-                    (new_balance, player_id),
-                )
-            else:
-                self.cur.execute(
-                    "INSERT INTO inventory (player_id, diplo_points) VALUES (?, ?)",
-                    (player_id, -amount),
-                )
         self.conn.commit()
 
     # Building-related database functions
