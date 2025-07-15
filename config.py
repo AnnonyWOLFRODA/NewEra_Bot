@@ -53,11 +53,12 @@ code_list = ['M1', 'M2', 'M3', 'M4', 'M5', 'MR', 'MRR', 'P1', 'P2', 'P3', 'P4', 
 
 # Building types configuration
 bat_types = {
-    0: ["usine_lvl", 7],      # Usines ont 7 niveaux
-    1: ["terrestre_", 7],     # Bases terrestres ont 7 niveaux
-    2: ["aerienne_", 4],      # Bases aériennes ont 4 niveaux
-    3: ["maritime_", 4],      # Bases maritimes ont 4 niveaux
-    4: ["ecole_", 4]          # Écoles militaires ont 4 niveaux
+    0: ["usine", 7],      # Usines ont 7 niveaux
+    1: ["terrestre", 7],     # Bases terrestres ont 7 niveaux
+    2: ["aerienne", 4],      # Bases aériennes ont 5 niveaux
+    3: ["maritime", 4],      # Bases maritimes ont 5 niveaux
+    4: ["ecole", 4],          # Écoles militaires ont 4 niveaux
+    5: ["logement", 4],        # Logements ont 4 niveaux
 }
 
 # Construction costs

@@ -1840,7 +1840,35 @@ async def brief_chat_til(ctx, user_message: discord.Message):
     try:
         chat_completion = groq_client.chat.completions.create(messages=messages, model="llama-3.3-70b-versatile")
         response = chat_completion.choices[0].message.content
-        await user_message.channel.send(f"Résumé de la situation : {response}")
+        await dUtils.send_long_message(ctx, f"Résumé de la situation : {response}")
+    except Exception as e:
+        await user_message.channel.send(f"Erreur lors de la synthèse : {e}")
+
+@bot.command()
+async def ask_rp_questions(ctx, question, user_message: discord.Message):
+    """Résumer la situation actuelle du RP dans un salon."""
+    if not dUtils.is_authorized(ctx):
+        return await ctx.send(embed=dUtils.get_auth_embed())
+
+    # Récupérer le contexte du salon
+    channel_context = await dUtils.get_channel_context(user_message.channel, user_message)
+
+    # Construire le message pour Groq
+    system_prompt = (
+        "Tu es une IA spécialisée dans la synthèse d'informations géopolitiques. "
+        "Tu dois répondre à la question de l'utilisateur en te basant sur les messages qui te seront donnés."
+    )
+    messages = [{"role": "system", "content": system_prompt}]
+    messages.append({"role": "user", "content": channel_context})
+    messages.append({"role": "user", "content": question})
+    
+    print(f"Question posée : {question}")
+    print(f"Contexte du salon : {channel_context}", flush=True)
+
+    try:
+        chat_completion = groq_client.chat.completions.create(messages=messages, model="llama-3.3-70b-versatile")
+        response = chat_completion.choices[0].message.content
+        await dUtils.send_long_message(ctx, f"Réponse à la question {question} : {response}")
     except Exception as e:
         await user_message.channel.send(f"Erreur lors de la synthèse : {e}")
 

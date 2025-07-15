@@ -16,7 +16,7 @@ class Database:
 
     def future_db(self):
         print(
-        """ 
+        """
         -- Table des pays
         CREATE TABLE IF NOT EXISTS Countries (
             country_id INTEGER PRIMARY KEY AUTOINCREMENT,   -- Identifiant unique du pays
@@ -73,7 +73,7 @@ class Database:
             type TEXT NOT NULL CHECK (type IN ('Usine', 'Base', 'Ecole', 'Logement')),
             specialization TEXT NOT NULL CHECK (specialization IN ('Terrestre', 'Aerienne', 'Navale', 'NA')),
             level INTEGER NOT NULL DEFAULT 1,
-            capacity INTEGER DEFAULT 0 NOT NULL,  -- Capacité utile pour les logements/écoles
+            capacity INTEGER DEFAULT 0 NOT NULL,  -- Capacité utile pour les logements/ecoles/bases
             FOREIGN KEY (region_id) REFERENCES Regions(region_id)
                 ON DELETE CASCADE
         );
@@ -118,6 +118,22 @@ class Database:
         LEFT JOIN Stats s ON c.country_id = s.country_id
         LEFT JOIN PopulationView p ON c.country_id = p.country_id
         LEFT JOIN PopulationCapacityView pc ON c.country_id = pc.country_id;
+        
+        CREATE VIEW IF NOT EXISTS CountryStructuresView AS
+        SELECT
+            c.country_id,
+            c.name AS country_name,
+            r.region_id,
+            r.name AS region_name,
+            s.id AS structure_id,
+            s.type,
+            s.specialization,
+            s.level,
+            s.capacity
+        FROM Structures s
+        JOIN Regions r ON s.region_id = r.region_id
+        JOIN Countries c ON r.country_id = c.country_id;
+
         """
         )
 
@@ -280,82 +296,66 @@ class Database:
         """Ajoute des points politiques (type=1) ou diplomatiques (type=2) à un pays."""
         column = "pol_points" if type == 1 else "diplo_points"
 
-        result = self.get_points(player_id, type)
+        result = self.get_points(country_id, type)
 
         if result is not None:
-            self.cur.execute(f"UPDATE inventory SET {column} = {column} + ? WHERE player_id = ?", (amount, player_id))
+            self.cur.execute(f"UPDATE Inventory SET {column} = {column} + ? WHERE country_id = ?", (amount, country_id))
         else:
-            self.cur.execute(f"INSERT INTO inventory (player_id, {column}) VALUES (?, ?)", (player_id, amount))
-
+            self.cur.execute(f"INSERT INTO Inventory (country_id, {column}) VALUES (?, ?)", (country_id, amount))
         self.conn.commit()
 
-    def take_points(self, player_id, amount, type: int = 1):
+    def take_points(self, country_id, amount, type: int = 1):
         """Take points from a country."""
-        result = self.get_points(player_id, type)
+        result = self.get_points(country_id, type)
         column = "pol_points" if type == 1 else "diplo_points"
         
         if result:
             self.cur.execute(
-                f"UPDATE inventory SET {column} = {column} - ? WHERE player_id = ?",
-                (amount, player_id),
+                f"UPDATE Inventory SET {column} = {column} - ? WHERE country_id = ?",
+                (amount, country_id),
             )
         else:
             self.cur.execute(
-                f"INSERT INTO inventory (player_id, {column}) VALUES (?, ?)",
-                (player_id, -amount),
+                f"INSERT INTO Inventory (country_id, {column}) VALUES (?, ?)",
+                (country_id, -amount),
             )
         self.conn.commit()
 
     # Building-related database functions
-    def get_usine(self, player_id, lvl, bat_type: int):
-        """Get the number of buildings of a specific type and level owned by a player."""
+    def get_usine(self, country_id, lvl, bat_type: int):
+        """Retourne le nombre de bâtiments d’un type et niveau donnés pour un pays."""
         from config import bat_types
 
+        type_name = bat_types[bat_type][0]  # Exemple : "usine", "logement"...
+
         self.cur.execute(
-            f"SELECT {bat_types[bat_type][0]}{lvl} FROM inventory WHERE player_id = ?",
-            (player_id,),
+            """
+            SELECT COUNT(*) FROM CountryStructuresView
+            WHERE country_id = ? AND type = ? AND level = ?
+            """,
+            (country_id, type_name, level)
         )
+
         result = self.cur.fetchone()
-        if result is not None:
-            return int(result[0])
-        else:
-            return 0
+        return result[0] if result else 0
 
     def has_enough_bats(self, player_id, amount, lvl, bat_type: int):
         """Check if a player has enough buildings of a specific type and level."""
         from config import bat_types
 
-        self.cur.execute(
-            f"SELECT {bat_types[bat_type][0]}{lvl} FROM inventory WHERE player_id = ?",
-            (player_id,),
-        )
-        result = self.cur.fetchone()
+        result = self.get_usine(player_id, lvl, bat_type)
         if result is None:
-            return False
-        if amount <= 0:
             return False
         return int(result[0]) >= int(amount)
 
-    def give_usine(self, player_id, amount, lvl, bat_type: int):
+    def give_usine(self, player_id, amount, lvl, bat_type: int, region_id: str = None):
         """Give buildings to a player."""
         from config import bat_types
 
         self.cur.execute(
-            f"SELECT {bat_types[bat_type][0]}{lvl} FROM inventory WHERE player_id = ?",
-            (player_id,),
+            f"INSERT INTO Structures (region_id, type, specialization, level, capacity) VALUES (?, ?, ?, ?, ?)",
+            (region_id, bat_types[bat_type][0])
         )
-        result = self.cur.fetchone()
-        if result is not None:
-            new_balance = result[0] + amount
-            self.cur.execute(
-                f"UPDATE inventory SET {bat_types[bat_type][0]}{lvl} = ? WHERE player_id = ?",
-                (new_balance, player_id),
-            )
-        else:
-            self.cur.execute(
-                f"INSERT INTO inventory (player_id, {bat_types[bat_type][0]}{lvl}) VALUES (?, ?)",
-                (player_id, amount),
-            )
         self.conn.commit()
 
     def set_usine(self, player_id, amount: int, lvl: int, bat_type: int):

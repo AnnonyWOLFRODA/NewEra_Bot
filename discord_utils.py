@@ -2,11 +2,15 @@
 Discord utilities for NEBot.
 Contains helper functions for discord commands.
 """
+
 import asyncio
 import discord
+
 # The bot instance must be set at runtime (e.g. by main.py)
 
 error_color_int = int("FF5733", 16)
+
+
 class discordUtils:
     """
     A utility class for Discord-related functions.
@@ -23,7 +27,11 @@ class discordUtils:
     async def discord_input(self, ctx, message: str) -> str:
         await ctx.send(message)
         try:
-            response = await self.bot.wait_for("message", check=lambda m: m.author == ctx.author and m.channel == ctx.channel, timeout=90)
+            response = await self.bot.wait_for(
+                "message",
+                check=lambda m: m.author == ctx.author and m.channel == ctx.channel,
+                timeout=90,
+            )
         except asyncio.TimeoutError:
             return ""
         return response.content
@@ -50,7 +58,7 @@ class discordUtils:
         embed = discord.Embed(
             title="Vous n'êtes pas autorisé à effectuer cette commande.",
             description="Il vous faut être staff",
-            color=error_color_int
+            color=error_color_int,
         )
         return embed
 
@@ -71,28 +79,52 @@ class discordUtils:
                 async for user in reaction.users():
                     users.append(user)
         return users
-    
+
     def parse_embed_json(json_file):
         embeds_json = json.loads(json_file)["embeds"]
 
         for embed_json in embeds_json:
             embed = discord.Embed().from_dict(embed_json)
             yield embed
-            
-    async def get_channel_context(self, channel: discord.TextChannel, messageLimit: discord.Message) -> str:
-        """Récupère le contexte du salon pour la synthèse."""
-        messages = []
-        async for message in channel.history(limit=100):
-            if message.author.bot:
+
+    async def get_channel_context(
+        self, channel: discord.TextChannel, messageLimit: discord.Message
+    ) -> str:
+        """Récupère le contexte du salon pour la synthèse, y compris les messages webhook et embeds complexes."""
+        context_lines = []
+
+        async for message in channel.history(limit=100, oldest_first=False):
+            if message.author.id == self.bot.user.id:
                 continue
-            if message.id == messageLimit.id:
+
+            # Inclure le message limite, puis couper juste après
+            context_included = message.id == messageLimit.id
+
+            # Détermination du nom d’auteur
+            author_name = (
+                message.author.name if message.webhook_id else message.author.display_name
+            )
+
+            # Contenu brut
+            if message.content.strip():
+                context_lines.append(f"{author_name}: {message.content.strip()}")
+
+            # Contenu embed
+            for embed in message.embeds:
+                lines = [f"{author_name} (embed):"]
+                if embed.title:
+                    lines.append(f"  Titre : {embed.title}")
+                if embed.description:
+                    lines.append(f"  Description : {embed.description}")
+                for field in embed.fields:
+                    lines.append(f"  {field.name}: {field.value}")
+                if embed.footer and embed.footer.text:
+                    lines.append(f"  [Footer] {embed.footer.text}")
+                if embed.author and embed.author.name:
+                    lines.append(f"  [Auteur] {embed.author.name}")
+                context_lines.append("\n".join(lines))
+
+            if context_included:
                 break
-            if message.content:
-                messages.append(f"{message.author.display_name}: {message.content}")
-            if message.embeds:
-                for embed in message.embeds:
-                    if embed.description:
-                        messages.append(f"{message.author.display_name} (embed): {embed.description}")
-                    if embed.title:
-                        messages.append(f"{message.author.display_name} (embed title): {embed.title}")
-        return "\n".join(messages)
+
+        return "\n".join(reversed(context_lines))
