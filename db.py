@@ -74,6 +74,7 @@ class Database:
             specialization TEXT NOT NULL CHECK (specialization IN ('Terrestre', 'Aerienne', 'Navale', 'NA')),
             level INTEGER NOT NULL DEFAULT 1,
             capacity INTEGER DEFAULT 0 NOT NULL,  -- Capacité utile pour les logements/ecoles/bases
+            population INTEGER DEFAULT 0 NOT NULL,  -- nb personnes affectées pour logements, bases, écoles, usines
             FOREIGN KEY (region_id) REFERENCES Regions(region_id)
                 ON DELETE CASCADE
         );
@@ -357,9 +358,13 @@ class Database:
             return False
         return int(result[0]) >= int(amount)
 
-    def give_usine(self, player_id, level: int, bat_type: int, specialization: str, region_id: str = None):
+    def give_usine(self, country_id, level: int, bat_type: int, specialization: str, region_id: str = None):
         """Crée un bâtiment dans la base pour une région donnée."""
         from config import bat_types, bat_buffs
+        
+        if region_id is None:
+            return
+        if 
 
         type_name = bat_types[bat_type][0]  # ex: "usine", "logement", etc.
 
@@ -379,47 +384,22 @@ class Database:
         )
         self.conn.commit()
 
-    def set_usine(self, player_id, amount: int, level: int, bat_type: int):
-        """Set the number of buildings of a specific type and level owned by a player."""
-        from config import bat_types
-
-        self.cur.execute(
-            f"SELECT {bat_types[bat_type][0]}{level} FROM inventory WHERE player_id = ?",
-            (player_id,),
-        )
-        result = self.cur.fetchone()
-        if result is not None:
-            self.cur.execute(
-                f"UPDATE inventory SET {bat_types[bat_type][0]}{level} = ? WHERE player_id = ?",
-                (amount, player_id),
-            )
-        else:
-            self.cur.execute(
-                f"INSERT INTO inventory (player_id, {bat_types[bat_type][0]}{level}) VALUES (?, ?)",
-                (player_id, amount),
-            )
-        self.conn.commit()
-
     def remove_usine(self, player_id, amount: int, lvl: int, bat_type: int):
         """Remove buildings from a player."""
         from config import bat_types
-
+            
+        type_name = bat_types[bat_type][0]  # ex: "usine", "logement", etc.
         self.cur.execute(
-            f"SELECT {bat_types[bat_type][0]}{lvl} FROM inventory WHERE player_id = ?",
-            (player_id,),
+            """
+            DELETE FROM Structures
+            WHERE region_id IN (
+                SELECT region_id FROM Structures
+                WHERE type = ? AND level = ?
+                LIMIT ?
+            )
+            """,
+            (type_name, lvl, amount)
         )
-        result = self.cur.fetchone()
-        if result is not None:
-            new_balance = result[0] - amount
-            self.cur.execute(
-                f"UPDATE inventory SET {bat_types[bat_type][0]}{lvl} = ? WHERE player_id = ?",
-                (new_balance, player_id),
-            )
-        else:
-            self.cur.execute(
-                f"INSERT INTO inventory (player_id, {bat_types[bat_type][0]}{lvl}) VALUES (?, ?)",
-                (player_id, -amount),
-            )
         self.conn.commit()
 
     def get_leads(self, lead_type: int, user_id: str):

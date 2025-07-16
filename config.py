@@ -66,12 +66,10 @@ code_list = [
 
 # Building types configuration
 bat_types = {
-    0: ["usine", 7],  # Usines ont 7 niveaux
-    1: ["terrestre", 7],  # Bases terrestres ont 7 niveaux
-    2: ["aerienne", 4],  # Bases aériennes ont 5 niveaux
-    3: ["maritime", 4],  # Bases maritimes ont 5 niveaux
-    4: ["ecole", 4],  # Écoles militaires ont 4 niveaux
-    5: ["logement", 4],  # Logements ont 4 niveaux
+    0: ["Usine", 7],  # Usines ont 7 niveaux
+    3: ["Base", 4],  # Bases maritimes ont 5 niveaux
+    4: ["Ecole", 4],  # Écoles militaires ont 4 niveaux
+    5: ["Logement", 4],  # Logements ont 4 niveaux
 }
 
 bat_buffs = {
