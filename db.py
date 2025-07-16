@@ -130,11 +130,11 @@ class Database:
             s.type,
             s.specialization,
             s.level,
-            s.capacity
+            s.capacity,
+            s.population
         FROM Structures s
         JOIN Regions r ON s.region_id = r.region_id
         JOIN Countries c ON r.country_id = c.country_id;
-
         """
         )
 
@@ -300,16 +300,22 @@ class Database:
         result = self.get_points(country_id, type)
 
         if result is not None:
-            self.cur.execute(f"UPDATE Inventory SET {column} = {column} + ? WHERE country_id = ?", (amount, country_id))
+            self.cur.execute(
+                f"UPDATE Inventory SET {column} = {column} + ? WHERE country_id = ?",
+                (amount, country_id),
+            )
         else:
-            self.cur.execute(f"INSERT INTO Inventory (country_id, {column}) VALUES (?, ?)", (country_id, amount))
+            self.cur.execute(
+                f"INSERT INTO Inventory (country_id, {column}) VALUES (?, ?)",
+                (country_id, amount),
+            )
         self.conn.commit()
 
     def take_points(self, country_id, amount, type: int = 1):
         """Take points from a country."""
         result = self.get_points(country_id, type)
         column = "pol_points" if type == 1 else "diplo_points"
-        
+
         if result:
             self.cur.execute(
                 f"UPDATE Inventory SET {column} = {column} - ? WHERE country_id = ?",
@@ -327,15 +333,15 @@ class Database:
         """Retourne le nombre de bâtiments d’un type et niveau donnés pour un pays."""
         from config import bat_types
 
-        type_name = bat_types[bat_type][0]  # Exemple : "usine", "logement"...
-        
+        type_name = bat_types[bat_type][0]
+
         if not specialization:
             self.cur.execute(
                 """
                 SELECT COUNT(*) FROM CountryStructuresView
                 WHERE country_id = ? AND type = ? AND level = ?
                 """,
-                (country_id, type_name, level)
+                (country_id, type_name, level),
             )
         else:
             self.cur.execute(
@@ -343,62 +349,80 @@ class Database:
                 SELECT COUNT(*) FROM CountryStructuresView
                 WHERE country_id = ? AND type = ? AND specialization = ? AND level = ?
                 """,
-                (country_id, type_name, specialization, level)
+                (country_id, type_name, specialization, level),
             )
 
         result = self.cur.fetchone()
         return result[0] if result else 0
 
-    def has_enough_bats(self, player_id, amount, level, bat_type: int):
-        """Check if a player has enough buildings of a specific type and level."""
+    def has_enough_bats(self, country_id, amount, level, bat_type: int, specialization=None):
+        """Vérifie si un pays a assez de bâtiments de ce type et niveau."""
+        count = self.get_usine(country_id, level, bat_type, specialization)
+        return count >= amount
+    
+    def list_bats(self, country_id, bat_type: str):
+        """Retourne une liste de bâtiments d’un type donné pour un pays."""
         from config import bat_types
 
-        result = self.get_usine(player_id, level, bat_type)
-        if result is None:
-            return False
-        return int(result[0]) >= int(amount)
+        type_name = bat_types.get(bat_type, [None])[0]
+        if not type_name and bat_type.lower() == "all":
+            type_name = "all"
+        if type_name is None:
+            raise ValueError(f"Type de bâtiment '{bat_type}' inconnu.")
 
-    def give_usine(self, country_id, level: int, bat_type: int, specialization: str, region_id: str = None):
-        """Crée un bâtiment dans la base pour une région donnée."""
+        if type_name == "all":
+            self.cur.execute(
+                """
+                SELECT * FROM CountryStructuresView
+                WHERE country_id = ?
+                """,
+                (country_id),
+            )
+        else:
+            self.cur.execute(
+                """
+                SELECT * FROM CountryStructuresView
+                WHERE country_id = ? AND type = ?
+                """,
+                (country_id, type_name),
+            )
+        result = self.cur.fetchall()
+        return result if result else []
+
+    def give_bats(self, country_id, level: int, bat_type: int, specialization: str, region_id: str = None):
+        """Ajoute un bâtiment dans la base."""
         from config import bat_types, bat_buffs
-        
+
         if region_id is None:
-            return
-        if 
+            raise ValueError("region_id est obligatoire")
 
-        type_name = bat_types[bat_type][0]  # ex: "usine", "logement", etc.
-
-        # Calcul de la capacité : par exemple, 7 (valeur de ref) * 30% = 2.1 → arrondi à 2
-        reference_capacity = bat_types[bat_type][1]  # ex: 7 pour les usines
-        buff_percent = bat_buffs.get(level, 1)  # Si level non reconnu, fallback à 1%
-
-        # On normalise à base 100%
+        type_name = bat_types[bat_type][0]
+        reference_capacity = bat_types[bat_type][1]
+        buff_percent = bat_buffs.get(level, 1)
         capacity = int((reference_capacity * buff_percent) / 100)
 
         self.cur.execute(
             """
-            INSERT INTO Structures (region_id, type, specialization, level, capacity)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO Structures (region_id, type, specialization, level, capacity, population)
+            VALUES (?, ?, ?, ?, ?, ?)
             """,
-            (region_id, type_name, specialization, level, capacity),
+            (region_id, type_name, specialization, level, capacity, population ),
         )
         self.conn.commit()
 
-    def remove_usine(self, player_id, amount: int, lvl: int, bat_type: int):
+
+    def remove_bats(self, country_id, bat_id: int):
         """Remove buildings from a player."""
-        from config import bat_types
-            
-        type_name = bat_types[bat_type][0]  # ex: "usine", "logement", etc.
+        self.cur.execute("SELECT * FROM Structures WHERE id = ?", (bat_id,))
+        if self.cur.fetchone() is None:
+            return
+
         self.cur.execute(
             """
             DELETE FROM Structures
-            WHERE region_id IN (
-                SELECT region_id FROM Structures
-                WHERE type = ? AND level = ?
-                LIMIT ?
-            )
+            WHERE id = ?
             """,
-            (type_name, lvl, amount)
+            (bat_id,),
         )
         self.conn.commit()
 
@@ -541,14 +565,14 @@ class Database:
                 if apparel.lower() == app_name.lower():
                     return app_type
         return None
-    
+
     def leak_db(self):
         """Leak the database content, renvoie colonnes et lignes."""
         self.cur.execute("SELECT * FROM inventory")
         rows = self.cur.fetchall()
         columns = [desc[0] for desc in self.cur.description]
         return columns, rows
-    
+
     def drop_all_except_inventory(db_path="datas/rts_clean.db"):
         conn = sqlite3.connect(db_path)
         cur = conn.cursor()
@@ -565,55 +589,71 @@ class Database:
         conn.commit()
         conn.close()
         print("Suppression terminée.")
-        
+
     def has_permission(country_id: str, player_id: str, permission: str) -> bool:
-        self.cur.execute(f"""
+        self.cur.execute(
+            f"""
             SELECT 1 FROM Governments
             WHERE country_id = ? AND player_id = ? AND {permission} = 1
-        """, (country_id, player_id))
+        """,
+            (country_id, player_id),
+        )
         return self.cur.fetchone() is not None
 
-    def add_region_to_country(self, country_id: str, region_name: str, population: int = 0) -> int:
+    def add_region_to_country(
+        self, country_id: str, region_name: str, population: int = 0
+    ) -> int:
         """Ajoute une région à un pays, et met à jour automatiquement la population du pays."""
         # Vérifie si la région existe déjà
-        self.cur.execute("SELECT region_id, country_id FROM Regions WHERE name = ?", (region_name,))
+        self.cur.execute(
+            "SELECT region_id, country_id FROM Regions WHERE name = ?", (region_name,)
+        )
         region = self.cur.fetchone()
 
         if region:
             region_id, old_country_id = region
             # Mise à jour du rattachement
             self.cur.execute(
-                "UPDATE Regions SET country_id = ? WHERE region_id = ?", 
-                (country_id, region_id)
+                "UPDATE Regions SET country_id = ? WHERE region_id = ?",
+                (country_id, region_id),
             )
         else:
             # Nouvelle région → insertion
             self.cur.execute(
                 "INSERT INTO Regions (country_id, name, mapchart_name, population) VALUES (?, ?, ?, ?)",
-                (country_id, region_name, region_name, population),  # mapchart_name = name par défaut
+                (
+                    country_id,
+                    region_name,
+                    region_name,
+                    population,
+                ),  # mapchart_name = name par défaut
             )
             region_id = self.cur.lastrowid
         self.conn.commit()
         return region_id
-    
+
     async def get_player_role(ctx):
         return ctx.guild.get_role(873955562734362625)
 
     async def get_non_player_role(ctx):
         return ctx.guild.get_role(873955513921048646)
-    
+
     def get_population_by_country(self, country_id: str) -> int:
         """Récupère la population totale d'un pays."""
-        self.cur.execute("SELECT * FROM PopulationView WHERE country_id = ?", (country_id,))
+        self.cur.execute(
+            "SELECT * FROM PopulationView WHERE country_id = ?", (country_id,)
+        )
         result = self.cur.fetchone()
         return result[0] if result and result[0] is not None else 0
-    
+
     def get_population_capacity_by_country(self, country_id: str) -> int:
         """Récupère la capacité d'accueil totale d'un pays."""
-        self.cur.execute("SELECT * FROM PopulationCapacityView WHERE country_id = ?", (country_id,))
+        self.cur.execute(
+            "SELECT * FROM PopulationCapacityView WHERE country_id = ?", (country_id,)
+        )
         result = self.cur.fetchone()
         return result[0] if result and result[0] is not None else 0
-    
+
     def get_stats_by_country(self, country_id: str) -> dict:
         """Récupère les stats d'un pays."""
         self.cur.execute("SELECT * FROM StatsView WHERE country_id = ?", (country_id,))
@@ -625,7 +665,7 @@ class Database:
                 "population": result["population"],
                 "population_capacity": result["population_capacity"],
                 "tech_level": result["tech_level"],
-                "gdp": result["gdp"]
+                "gdp": result["gdp"],
             }
         return {
             "country_id": country_id,
@@ -633,11 +673,13 @@ class Database:
             "population": 0,
             "population_capacity": 0,
             "tech_level": 1,
-            "gdp": 0
+            "gdp": 0,
         }
-        
+
     def get_players_country(self, player_id: str) -> str:
         """Récupère le pays d'un joueur."""
-        self.cur.execute("SELECT country_id FROM Governments WHERE player_id = ?", (player_id,))
+        self.cur.execute(
+            "SELECT country_id FROM Governments WHERE player_id = ?", (player_id,)
+        )
         result = self.cur.fetchone()
         return result[0] if result else None
