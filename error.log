@@ -624,3 +624,4 @@ INFO:discord.client:logging in using static token
 INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: e32c79740d92fd70310902e058a7ada7).
 INFO:discord.client:logging in using static token
 INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 1d6f74c9490124341f7b4fe1c7743045).
+INFO:discord.gateway:Shard ID None has successfully RESUMED session 1d6f74c9490124341f7b4fe1c7743045.

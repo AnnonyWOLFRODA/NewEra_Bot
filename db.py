@@ -322,59 +322,80 @@ class Database:
         self.conn.commit()
 
     # Building-related database functions
-    def get_usine(self, country_id, lvl, bat_type: int):
+    def get_usine(self, country_id, level, bat_type: int, specialization: str = None):
         """Retourne le nombre de bâtiments d’un type et niveau donnés pour un pays."""
         from config import bat_types
 
         type_name = bat_types[bat_type][0]  # Exemple : "usine", "logement"...
-
-        self.cur.execute(
-            """
-            SELECT COUNT(*) FROM CountryStructuresView
-            WHERE country_id = ? AND type = ? AND level = ?
-            """,
-            (country_id, type_name, level)
-        )
+        
+        if not specialization:
+            self.cur.execute(
+                """
+                SELECT COUNT(*) FROM CountryStructuresView
+                WHERE country_id = ? AND type = ? AND level = ?
+                """,
+                (country_id, type_name, level)
+            )
+        else:
+            self.cur.execute(
+                """
+                SELECT COUNT(*) FROM CountryStructuresView
+                WHERE country_id = ? AND type = ? AND specialization = ? AND level = ?
+                """,
+                (country_id, type_name, specialization, level)
+            )
 
         result = self.cur.fetchone()
         return result[0] if result else 0
 
-    def has_enough_bats(self, player_id, amount, lvl, bat_type: int):
+    def has_enough_bats(self, player_id, amount, level, bat_type: int):
         """Check if a player has enough buildings of a specific type and level."""
         from config import bat_types
 
-        result = self.get_usine(player_id, lvl, bat_type)
+        result = self.get_usine(player_id, level, bat_type)
         if result is None:
             return False
         return int(result[0]) >= int(amount)
 
-    def give_usine(self, player_id, amount, lvl, bat_type: int, region_id: str = None):
-        """Give buildings to a player."""
-        from config import bat_types
+    def give_usine(self, player_id, level: int, bat_type: int, specialization: str, region_id: str = None):
+        """Crée un bâtiment dans la base pour une région donnée."""
+        from config import bat_types, bat_buffs
+
+        type_name = bat_types[bat_type][0]  # ex: "usine", "logement", etc.
+
+        # Calcul de la capacité : par exemple, 7 (valeur de ref) * 30% = 2.1 → arrondi à 2
+        reference_capacity = bat_types[bat_type][1]  # ex: 7 pour les usines
+        buff_percent = bat_buffs.get(level, 1)  # Si level non reconnu, fallback à 1%
+
+        # On normalise à base 100%
+        capacity = int((reference_capacity * buff_percent) / 100)
 
         self.cur.execute(
-            f"INSERT INTO Structures (region_id, type, specialization, level, capacity) VALUES (?, ?, ?, ?, ?)",
-            (region_id, bat_types[bat_type][0])
+            """
+            INSERT INTO Structures (region_id, type, specialization, level, capacity)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (region_id, type_name, specialization, level, capacity),
         )
         self.conn.commit()
 
-    def set_usine(self, player_id, amount: int, lvl: int, bat_type: int):
+    def set_usine(self, player_id, amount: int, level: int, bat_type: int):
         """Set the number of buildings of a specific type and level owned by a player."""
         from config import bat_types
 
         self.cur.execute(
-            f"SELECT {bat_types[bat_type][0]}{lvl} FROM inventory WHERE player_id = ?",
+            f"SELECT {bat_types[bat_type][0]}{level} FROM inventory WHERE player_id = ?",
             (player_id,),
         )
         result = self.cur.fetchone()
         if result is not None:
             self.cur.execute(
-                f"UPDATE inventory SET {bat_types[bat_type][0]}{lvl} = ? WHERE player_id = ?",
+                f"UPDATE inventory SET {bat_types[bat_type][0]}{level} = ? WHERE player_id = ?",
                 (amount, player_id),
             )
         else:
             self.cur.execute(
-                f"INSERT INTO inventory (player_id, {bat_types[bat_type][0]}{lvl}) VALUES (?, ?)",
+                f"INSERT INTO inventory (player_id, {bat_types[bat_type][0]}{level}) VALUES (?, ?)",
                 (player_id, amount),
             )
         self.conn.commit()

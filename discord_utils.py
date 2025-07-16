@@ -104,6 +104,10 @@ class discordUtils:
             author_name = (
                 message.author.name if message.webhook_id else message.author.display_name
             )
+            
+            if (message.content.startswith("[") or message.content.startswith("(")) 
+            and (message.content.endswith(")") or message.content.endswith("]")):
+                continue  # Ignore messages that are wrapped in brackets or parentheses
 
             # Contenu brut
             if message.content.strip():
@@ -125,6 +129,9 @@ class discordUtils:
                 context_lines.append("\n".join(lines))
 
             if context_included:
+                break
+            
+            if len("\n".join(context_lines)) > 8000:
                 break
 
         return "\n".join(reversed(context_lines))
