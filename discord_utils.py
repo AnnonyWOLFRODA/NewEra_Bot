@@ -105,8 +105,7 @@ class discordUtils:
                 message.author.name if message.webhook_id else message.author.display_name
             )
             
-            if (message.content.startswith("[") or message.content.startswith("(")) 
-            and (message.content.endswith(")") or message.content.endswith("]")):
+            if (message.content.startswith("[") or message.content.startswith("(")) and (message.content.endswith(")") or message.content.endswith("]")):
                 continue  # Ignore messages that are wrapped in brackets or parentheses
 
             # Contenu brut

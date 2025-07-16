@@ -329,7 +329,7 @@ class Database:
         self.conn.commit()
 
     # Building-related database functions
-    def get_usine(self, country_id, level, bat_type: int, specialization: str = None):
+    def get_bat(self, country_id, level, bat_type: int, specialization: str = None):
         """Retourne le nombre de bâtiments d’un type et niveau donnés pour un pays."""
         from config import bat_types
 
@@ -355,61 +355,55 @@ class Database:
         result = self.cur.fetchone()
         return result[0] if result else 0
 
-    def has_enough_bats(self, country_id, amount, level, bat_type: int, specialization=None):
-        """Vérifie si un pays a assez de bâtiments de ce type et niveau."""
-        count = self.get_usine(country_id, level, bat_type, specialization)
-        return count >= amount
-    
-    def list_bats(self, country_id, bat_type: str):
-        """Retourne une liste de bâtiments d’un type donné pour un pays."""
+    def list_bats(self, country_id, bat_type: str = "all"):
+        """Retourne la liste des bâtiments d’un type donné pour un pays."""
         from config import bat_types
 
-        type_name = bat_types.get(bat_type, [None])[0]
-        if not type_name and bat_type.lower() == "all":
-            type_name = "all"
-        if type_name is None:
-            raise ValueError(f"Type de bâtiment '{bat_type}' inconnu.")
-
-        if type_name == "all":
+        if bat_type.lower() == "all":
             self.cur.execute(
                 """
                 SELECT * FROM CountryStructuresView
                 WHERE country_id = ?
                 """,
-                (country_id),
+                (country_id,),
             )
         else:
+            matched = None
+            for bt in bat_types.values():
+                if bt[0].lower() == bat_type.lower():
+                    matched = bt[0]
+                    break
+            if not matched:
+                raise ValueError(f"Type de bâtiment inconnu : {bat_type}")
             self.cur.execute(
                 """
                 SELECT * FROM CountryStructuresView
                 WHERE country_id = ? AND type = ?
                 """,
-                (country_id, type_name),
+                (country_id, matched),
             )
-        result = self.cur.fetchall()
-        return result if result else []
+        return self.cur.fetchall()
 
-    def give_bats(self, country_id, level: int, bat_type: int, specialization: str, region_id: str = None):
-        """Ajoute un bâtiment dans la base."""
+    def give_bats(self, country_id, level: int, bat_type: int, specialization: str, region_id: str):
+        """Ajoute un bâtiment dans une région donnée."""
         from config import bat_types, bat_buffs
 
         if region_id is None:
-            raise ValueError("region_id est obligatoire")
+            raise ValueError("region_id est requis.")
 
-        type_name = bat_types[bat_type][0]
-        reference_capacity = bat_types[bat_type][1]
+        type_name, properties = bat_types[bat_type]
+        ref_capacity = properties["capacity"]
         buff_percent = bat_buffs.get(level, 1)
-        capacity = int((reference_capacity * buff_percent) / 100)
+        capacity = int((ref_capacity * buff_percent) / 100)
 
         self.cur.execute(
             """
             INSERT INTO Structures (region_id, type, specialization, level, capacity, population)
             VALUES (?, ?, ?, ?, ?, ?)
             """,
-            (region_id, type_name, specialization, level, capacity, population ),
+            (region_id, type_name, specialization, level, capacity, 0),
         )
         self.conn.commit()
-
 
     def remove_bats(self, country_id, bat_id: int):
         """Remove buildings from a player."""
@@ -425,6 +419,70 @@ class Database:
             (bat_id,),
         )
         self.conn.commit()
+        
+    def edit_bats(self, bat_id: int, level: int = None, specialization: str = None):
+        """Modifie le niveau ou la spécialisation d’un bâtiment."""
+        # On récupère l’ancien bâtiment
+        self.cur.execute("SELECT type FROM Structures WHERE id = ?", (bat_id,))
+        row = self.cur.fetchone()
+        if not row:
+            return
+
+        bat_type = row[0]  # nom du type ("Usine", etc.)
+        matched_type = next((bt for bt in bat_types.values() if bt[0] == bat_type), None)
+        if not matched_type:
+            return
+
+        updates = []
+        params = []
+
+        if level is not None:
+            buff_percent = bat_buffs.get(level, 1)
+            ref_capacity = matched_type[1]["capacity"]
+            new_capacity = int((ref_capacity * buff_percent) / 100)
+
+            updates += ["level = ?", "capacity = ?"]
+            params += [level, new_capacity]
+
+        if specialization is not None:
+            updates.append("specialization = ?")
+            params.append(specialization)
+
+        if updates:
+            query = f"UPDATE Structures SET {', '.join(updates)} WHERE id = ?"
+            params.append(bat_id)
+            self.cur.execute(query, tuple(params))
+            self.conn.commit()
+
+        
+    def upgrade_bats(self, country_id, bat_id: int):
+        """Améliore un bâtiment donné d’un pays."""
+        from config import bat_types, bat_buffs
+
+        self.cur.execute("SELECT type, level FROM Structures WHERE id = ?", (bat_id,))
+        row = self.cur.fetchone()
+        if not row:
+            return "Bâtiment introuvable."
+
+        bat_type_name, level = row
+        matched_type = next((bt for bt in bat_types.values() if bt[0] == bat_type_name), None)
+        if not matched_type:
+            return "Type de bâtiment invalide."
+
+        if level >= 7:
+            return "Niveau maximum atteint."
+
+        new_level = level + 1
+        cost = matched_type[1]["cost"]
+
+        balance = self.get_balance(country_id)
+        if balance is None or balance < cost:
+            return "Solde insuffisant."
+
+        # Paiement et mise à jour
+        self.take_balance(country_id, cost)
+        self.edit_bats(bat_id, level=new_level)
+        return f"{bat_type_name} amélioré au niveau {new_level}."
 
     def get_leads(self, lead_type: int, user_id: str):
         if lead_type == 1:

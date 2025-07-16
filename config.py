@@ -65,22 +65,19 @@ code_list = [
 ]
 
 # Building types configuration
+# ID: ["Name", {"capacity:" capacity, "cost": cost}]
 bat_types = {
-    0: ["Usine", 7],  # Usines ont 7 niveaux
-    3: ["Base", 4],  # Bases maritimes ont 5 niveaux
-    4: ["Ecole", 4],  # Écoles militaires ont 4 niveaux
-    5: ["Logement", 4],  # Logements ont 4 niveaux
+    0: ["Usine", {"capacity": 1000, "cost": 100000}],
+    1: ["Base", {"capacity": 800, "cost": 90000}],
+    2: ["Ecole", {"capacity": 500, "cost": 60000}],
+    3: ["Logement", {"capacity": 1500, "cost": 50000}],
 }
 
 bat_buffs = {
-    1: 10,  # Buff de 10% pour tout batiment T1
-    2: 25,  # Buff de 25% pour tout batiment T2
-    3: 30,  # Buff de 30% pour tout batiment T3
-    4: 50,  # Buff de 50% pour tout batiment T4
-    5: 75,  # Buff de 75 pour tout batiment T5
-    6: 85,  # Buff de 85% pour tout batiment T6
-    7: 100,  # Le T7 représente la valeur de référence, donc 100%
+    1: 10, 2: 25, 3: 30, 4: 50,
+    5: 75, 6: 85, 7: 100
 }
+
 
 # Construction costs
 wall_prices = {
