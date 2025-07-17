@@ -93,6 +93,37 @@ db = Database()
 dUtils = discordUtils(bot)
 # Créer une nouvelle connexion et table
 
+
+class CountryEntity:
+    def __init__(self, entity: Union[discord.User, discord.Role], guild: discord.Guild):
+        self.entity = entity
+        self.guild = guild
+
+    @property
+    def is_user(self) -> bool:
+        return isinstance(self.entity, discord.User)
+
+    @property
+    def is_role(self) -> bool:
+        return isinstance(self.entity, discord.Role)
+
+    def get_country_role(self) -> discord.Role | None:
+        """
+        Retourne le rôle-pays associé à un utilisateur.
+        Suppose que le nom du rôle-pays est le même que le pseudo, ou suit un certain préfixe logique.
+        À adapter selon ton système.
+        """
+        if not self.is_user:
+            return self.entity  # si c’est déjà un rôle, on le retourne
+
+        member: discord.Member = self.guild.get_member(self.entity.id)
+        if not member:
+            return None
+
+        db.get_players_government(member.id)
+
+        return None
+
 with open("datas/usines.json") as f:
     production_data = json.load(f)
 with open("datas/bases.json") as f:
@@ -1309,24 +1340,25 @@ async def set_base(ctx, bat_type: int, user: discord.Member, amount: int, lvl: i
     await ctx.send(embed=embed)
 
 @bot.command()
-async def batiments(ctx, bat_type: int, type, user: discord.Member = None):
+async def batiments(ctx, bat_type: int, user: discord.Member = None):
     if user is None:
         user = ctx.author
-    if int(bat_type) >= len(bat_types):
-        return await ctx.send("Type de bâtiment invalide.")
-    bat_name, max_lvl = bat_types[
-        bat_type
-    ]  # Récupère le niveau maximum en fonction du type de bâtiment
-    if type.lower() != "all":
-        try:
-            type = int(type)
-        except ValueError:
-            return await ctx.send("Veuillez fournir un niveau valide ou 'all'.")
-
-        if not is_valid_lvl(type, max_lvl):
-            return await ctx.send(
-                f"Le niveau pour {bat_name} doit être entre 1 et {max_lvl}."
-            )
+    if not dUtils.is_authorized(ctx) and not user.id == ctx.author.id:
+        embed = discord.Embed(
+            title="Vous n'êtes pas autorisé à effectuer cette commande.",
+            description="Il vous faut être staff",
+            color=error_color_int,
+        )
+        await ctx.send(embed=embed)
+        return
+    if bat_type.lower() == "all":
+        bat_name = "all"
+    elif not isinstance(bat_type, int) or bat_type not in bat_types:
+        return await ctx.send("Type de bâtiment invalide. Veuillez fournir un type valide.")
+    else:
+        bat_name = bat_types[bat_type][0]
+    if bat_type.lower() != "all":
+        bat_list = db.list_bats(user.id, )
 
     if type.lower() == "all":
         embed = discord.Embed(title=f"{bat_name}s de {user.name}", description="")
@@ -1343,7 +1375,7 @@ async def batiments(ctx, bat_type: int, type, user: discord.Member = None):
 
 @bot.command()
 async def remove_bat(
-    ctx, bat_type: int, user: discord.Member, amount: Union[int, str], lvl: int
+    ctx, bat_id: int
 ):
     if not dUtils.is_authorized(ctx):
         embed = discord.Embed(
@@ -1354,29 +1386,7 @@ async def remove_bat(
         await ctx.send(embed=embed)
         return
 
-    balance = db.get_usine(user.id, lvl, bat_type)
-    if balance is None:
-        balance = 0
-
-    if not amount_converter(amount, balance):
-        embed = discord.Embed(
-            title="Erreur de retrait de batiments",
-            description=":factory: Le montant spécifié est invalide.",
-            color=error_color_int,
-        )
-        await ctx.send(embed=embed)
-        return
-
-    payment_amount = amount_converter(amount, balance)
-    if not db.has_enough_balance(user.id, payment_amount):
-        embed = discord.Embed(
-            title="Erreur de retrait d'argent",
-            description=f":factory: L'utilisateur {user.name} n'a pas assez d'usines.",
-            color=error_color_int,
-        )
-        await ctx.send(embed=embed)
-        return
-    db.remove_usine(user.id, amount, lvl, 0)
+    db.remove_usine(user.id, bat_id)
     embed = discord.Embed(
         title="Opération réussie",
         description=f":factory: **{convert(str(payment_amount))}** ont été retirés de l'inventaire d'usines de niveau {lvl} de l'utilisateur {user.name}.",

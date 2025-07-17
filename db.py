@@ -329,7 +329,7 @@ class Database:
         self.conn.commit()
 
     # Building-related database functions
-    def get_bat(self, country_id, level, bat_type: int, specialization: str = None):
+    def get_bats(self, country_id, level, bat_type: int, specialization: str = None):
         """Retourne le nombre de bâtiments d’un type et niveau donnés pour un pays."""
         from config import bat_types
 
@@ -384,7 +384,7 @@ class Database:
             )
         return self.cur.fetchall()
 
-    def give_bats(self, country_id, level: int, bat_type: int, specialization: str, region_id: str):
+    def give_bat(self, country_id, level: int, bat_type: int, specialization: str, region_id: str):
         """Ajoute un bâtiment dans une région donnée."""
         from config import bat_types, bat_buffs
 
@@ -405,7 +405,7 @@ class Database:
         )
         self.conn.commit()
 
-    def remove_bats(self, country_id, bat_id: int):
+    def remove_bat(self, bat_id: int):
         """Remove buildings from a player."""
         self.cur.execute("SELECT * FROM Structures WHERE id = ?", (bat_id,))
         if self.cur.fetchone() is None:
@@ -420,7 +420,7 @@ class Database:
         )
         self.conn.commit()
         
-    def edit_bats(self, bat_id: int, level: int = None, specialization: str = None):
+    def edit_bat(self, bat_id: int, level: int = None, specialization: str = None):
         """Modifie le niveau ou la spécialisation d’un bâtiment."""
         # On récupère l’ancien bâtiment
         self.cur.execute("SELECT type FROM Structures WHERE id = ?", (bat_id,))
@@ -454,8 +454,7 @@ class Database:
             self.cur.execute(query, tuple(params))
             self.conn.commit()
 
-        
-    def upgrade_bats(self, country_id, bat_id: int):
+    def upgrade_bat(self, country_id, bat_id: int):
         """Améliore un bâtiment donné d’un pays."""
         from config import bat_types, bat_buffs
 
@@ -695,6 +694,14 @@ class Database:
 
     async def get_non_player_role(ctx):
         return ctx.guild.get_role(873955513921048646)
+    
+    def get_players_government(self, player_id: int) -> str:
+        """Récupère le gouvernement d'un joueur."""
+        self.cur.execute(
+            "SELECT country_id FROM Governments WHERE player_id = ?", (player_id,)
+        )
+        result = self.cur.fetchone()
+        return result[0] if result else None
 
     def get_population_by_country(self, country_id: str) -> int:
         """Récupère la population totale d'un pays."""
