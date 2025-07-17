@@ -639,3 +639,7 @@ discord.errors.ConnectionClosed: Shard ID None WebSocket closed with 1000
 INFO:discord.gateway:Shard ID None has successfully RESUMED session 71569decfe73b9f7fd830c67511905ad.
 INFO:discord.gateway:Shard ID None has successfully RESUMED session 71569decfe73b9f7fd830c67511905ad.
 INFO:discord.gateway:Shard ID None has successfully RESUMED session 71569decfe73b9f7fd830c67511905ad.
+INFO:discord.gateway:Shard ID None has successfully RESUMED session 71569decfe73b9f7fd830c67511905ad.
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: c3e928161c4d78354630225a0172b6c5).
+INFO:discord.gateway:Shard ID None has successfully RESUMED session c3e928161c4d78354630225a0172b6c5.
