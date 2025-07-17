@@ -661,3 +661,7 @@ Traceback (most recent call last):
 discord.errors.ConnectionClosed: Shard ID None WebSocket closed with 1000
 INFO:discord.gateway:Shard ID None has successfully RESUMED session c3e928161c4d78354630225a0172b6c5.
 INFO:discord.gateway:Shard ID None has successfully RESUMED session c3e928161c4d78354630225a0172b6c5.
+INFO:discord.gateway:Shard ID None has successfully RESUMED session c3e928161c4d78354630225a0172b6c5.
+INFO:discord.gateway:Shard ID None has successfully RESUMED session c3e928161c4d78354630225a0172b6c5.
+INFO:discord.gateway:Shard ID None has successfully RESUMED session c3e928161c4d78354630225a0172b6c5.
+INFO:discord.gateway:Shard ID None has successfully RESUMED session c3e928161c4d78354630225a0172b6c5.
