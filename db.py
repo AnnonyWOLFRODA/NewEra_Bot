@@ -8,143 +8,13 @@ class Database:
 
     def __init__(self, path="datas/rts.db"):
         self.conn, self.cur = self.initialize_database()
-        self.conn.row_factory = sqlite3.Row  # Enable row factory for dict-like access
 
     def __del__(self):
         if hasattr(self, "conn"):
             self.conn.close()
 
-    def future_db(self):
+    def old_db(self):
         print(
-        """
-        -- Table des pays
-        CREATE TABLE IF NOT EXISTS Countries (
-            country_id INTEGER PRIMARY KEY AUTOINCREMENT,   -- Identifiant unique du pays
-            name TEXT NOT NULL,                             -- Nom du pays
-            public_channel_id TEXT NOT NULL,                -- ID du salon public (NON NULLABLE)
-            secret_channel_id TEXT,                         -- ID du salon secret (NULLABLE)
-            last_bilan TEXT DEFAULT NULL                    -- Dernier bilan du pays (NULLABLE)
-        );
-
-        -- Table des régions
-        CREATE TABLE IF NOT EXISTS Regions (
-            region_id INTEGER PRIMARY KEY AUTOINCREMENT, -- Identifiant unique de la région
-            country_id TEXT NOT NULL,                    -- Pour rattacher la région à un pays
-            name TEXT NOT NULL,                          -- Nom de la région
-            mapchart_name TEXT NOT NULL,                 -- Nom associé à MapChart
-            population INTEGER DEFAULT 0 NOT NULL,       -- Population de la région
-            FOREIGN KEY (country_id) REFERENCES Countries(country_id)
-                ON DELETE CASCADE
-        );
-
-        -- Table des gouvernements
-        CREATE TABLE IF NOT EXISTS Governments (
-            country_id TEXT NOT NULL,
-            slot INTEGER NOT NULL CHECK (slot BETWEEN 1 AND 5),
-            player_id TEXT NOT NULL,  -- ID du joueur occupant ce poste
-            can_spend_money BOOLEAN DEFAULT FALSE,
-            can_spend_points BOOLEAN DEFAULT FALSE,
-            can_sign_treaties BOOLEAN DEFAULT FALSE,
-            can_build BOOLEAN DEFAULT FALSE,
-            can_recruit BOOLEAN DEFAULT FALSE,
-            can_produce BOOLEAN DEFAULT FALSE,
-            can_declare_war BOOLEAN DEFAULT FALSE,
-            PRIMARY KEY (country_id, slot),
-            FOREIGN KEY (country_id) REFERENCES Countries(country_id)
-                ON DELETE CASCADE
-        );
-
-        -- Table de l’inventaire
-        CREATE TABLE IF NOT EXISTS Inventory (
-            country_id TEXT PRIMARY KEY,
-            balance INTEGER DEFAULT 0 NOT NULL,
-            pol_points INTEGER DEFAULT 0 NOT NULL,
-            diplo_points INTEGER DEFAULT 0 NOT NULL,
-            soldiers INTEGER DEFAULT 0 NOT NULL,
-            reserves INTEGER DEFAULT 0 NOT NULL,
-            FOREIGN KEY (country_id) REFERENCES Countries(country_id)
-                ON DELETE CASCADE
-        );
-
-        -- Table des structures
-        CREATE TABLE IF NOT EXISTS Structures (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            region_id TEXT NOT NULL,
-            type TEXT NOT NULL CHECK (type IN ('Usine', 'Base', 'Ecole', 'Logement')),
-            specialization TEXT NOT NULL CHECK (specialization IN ('Terrestre', 'Aerienne', 'Navale', 'NA')),
-            level INTEGER NOT NULL DEFAULT 1,
-            capacity INTEGER DEFAULT 0 NOT NULL,  -- Capacité utile pour les logements/ecoles/bases
-            population INTEGER DEFAULT 0 NOT NULL,  -- nb personnes affectées pour logements, bases, écoles, usines
-            FOREIGN KEY (region_id) REFERENCES Regions(region_id)
-                ON DELETE CASCADE
-        );
-
-        -- Table des stats fixes
-        CREATE TABLE IF NOT EXISTS Stats (
-            country_id TEXT PRIMARY KEY,
-            tech_level INTEGER DEFAULT 1 NOT NULL,
-            gdp INTEGER DEFAULT 0 NOT NULL,
-            FOREIGN KEY (country_id) REFERENCES Countries(country_id)
-                ON DELETE CASCADE
-        );
-
-        -- VIEW : Population totale par pays
-        CREATE VIEW IF NOT EXISTS PopulationView AS
-        SELECT
-            country_id,
-            SUM(population) AS population
-        FROM Regions
-        GROUP BY country_id;
-
-        -- VIEW : Capacité d’accueil par pays
-        CREATE VIEW IF NOT EXISTS PopulationCapacityView AS
-        SELECT
-            r.country_id,
-            SUM(s.capacity) AS population_capacity
-        FROM Structures s
-        JOIN Regions r ON s.region_id = r.region_id
-        WHERE s.type IN ('Logement')  -- tu peux changer selon le gameplay
-        GROUP BY r.country_id;
-
-        -- VIEW : Vue globale des stats
-        CREATE VIEW IF NOT EXISTS StatsView AS
-        SELECT
-            c.country_id,
-            c.name,
-            IFNULL(p.population, 0) AS population,
-            IFNULL(pc.population_capacity, 0) AS population_capacity,
-            IFNULL(s.tech_level, 1) AS tech_level,
-            IFNULL(s.gdp, 0) AS gdp
-        FROM Countries c
-        LEFT JOIN Stats s ON c.country_id = s.country_id
-        LEFT JOIN PopulationView p ON c.country_id = p.country_id
-        LEFT JOIN PopulationCapacityView pc ON c.country_id = pc.country_id;
-        
-        CREATE VIEW IF NOT EXISTS CountryStructuresView AS
-        SELECT
-            c.country_id,
-            c.name AS country_name,
-            r.region_id,
-            r.name AS region_name,
-            s.id AS structure_id,
-            s.type,
-            s.specialization,
-            s.level,
-            s.capacity,
-            s.population
-        FROM Structures s
-        JOIN Regions r ON s.region_id = r.region_id
-        JOIN Countries c ON r.country_id = c.country_id;
-        """
-        )
-
-    def initialize_database(self):
-        """Initialize the database self.connection and create tables if they don't exist."""
-        conn = sqlite3.connect("datas/rts.db", check_same_thread=False)
-        cur = conn.cursor()
-
-        # Create inventory table
-        cur.execute(
             """
             CREATE TABLE IF NOT EXISTS inventory (
                 player_id TEXT PRIMARY KEY,
@@ -179,6 +49,137 @@ class Database:
                 ecole_4 INTEGER DEFAULT 0 NOT NULL,
                 population_capacity INTEGER DEFAULT 0 NOT NULL
             )
+        """
+        )
+
+    def initialize_database(self):
+        """Initialize the database self.connection and create tables if they don't exist."""
+        conn = sqlite3.connect("datas/rts.db", check_same_thread=False)
+        conn.row_factory = sqlite3.Row  # Enable row factory for dict-like access
+        cur = conn.cursor()
+
+        # Create inventory table
+        cur.executescript(
+            """
+            -- Table des pays
+            CREATE TABLE IF NOT EXISTS Countries (
+                country_id INTEGER PRIMARY KEY AUTOINCREMENT,   -- Identifiant unique du pays
+                role_id    TEXT NOT NULL,                       -- ID du rôle Discord associé
+                name TEXT NOT NULL,                             -- Nom du pays
+                public_channel_id TEXT NOT NULL,                -- ID du salon public (NON NULLABLE)
+                secret_channel_id TEXT,                         -- ID du salon secret (NULLABLE)
+                last_bilan TEXT DEFAULT NULL                    -- Dernier bilan du pays (NULLABLE)
+            );
+
+            -- Table des régions
+            CREATE TABLE IF NOT EXISTS Regions (
+                region_id INTEGER PRIMARY KEY AUTOINCREMENT, -- Identifiant unique de la région
+                country_id TEXT NOT NULL,                    -- Pour rattacher la région à un pays
+                name TEXT NOT NULL,                          -- Nom de la région
+                mapchart_name TEXT NOT NULL,                 -- Nom associé à MapChart
+                population INTEGER DEFAULT 0 NOT NULL,       -- Population de la région
+                FOREIGN KEY (country_id) REFERENCES Countries(country_id)
+                    ON DELETE CASCADE
+            );
+
+            -- Table des gouvernements
+            CREATE TABLE IF NOT EXISTS Governments (
+                country_id TEXT NOT NULL,
+                slot INTEGER NOT NULL CHECK (slot BETWEEN 1 AND 5),
+                player_id TEXT NOT NULL,  -- ID du joueur occupant ce poste
+                can_spend_money BOOLEAN DEFAULT FALSE,
+                can_spend_points BOOLEAN DEFAULT FALSE,
+                can_sign_treaties BOOLEAN DEFAULT FALSE,
+                can_build BOOLEAN DEFAULT FALSE,
+                can_recruit BOOLEAN DEFAULT FALSE,
+                can_produce BOOLEAN DEFAULT FALSE,
+                can_declare_war BOOLEAN DEFAULT FALSE,
+                PRIMARY KEY (country_id, slot),
+                FOREIGN KEY (country_id) REFERENCES Countries(country_id)
+                    ON DELETE CASCADE
+            );
+
+            -- Table de l’inventaire
+            CREATE TABLE IF NOT EXISTS Inventory (
+                country_id TEXT PRIMARY KEY,
+                balance INTEGER DEFAULT 0 NOT NULL,
+                pol_points INTEGER DEFAULT 0 NOT NULL,
+                diplo_points INTEGER DEFAULT 0 NOT NULL,
+                soldiers INTEGER DEFAULT 0 NOT NULL,
+                reserves INTEGER DEFAULT 0 NOT NULL,
+                FOREIGN KEY (country_id) REFERENCES Countries(country_id)
+                    ON DELETE CASCADE
+            );
+
+            -- Table des structures
+            CREATE TABLE IF NOT EXISTS Structures (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                region_id TEXT NOT NULL,
+                type TEXT NOT NULL CHECK (type IN ('Usine', 'Base', 'Ecole', 'Logement')),
+                specialization TEXT NOT NULL CHECK (specialization IN ('Terrestre', 'Aerienne', 'Navale', 'NA')),
+                level INTEGER NOT NULL DEFAULT 1,
+                capacity INTEGER DEFAULT 0 NOT NULL,  -- Capacité utile pour les logements/ecoles/bases
+                population INTEGER DEFAULT 0 NOT NULL,  -- nb personnes affectées pour logements, bases, écoles, usines
+                FOREIGN KEY (region_id) REFERENCES Regions(region_id)
+                    ON DELETE CASCADE
+            );
+
+            -- Table des stats fixes
+            CREATE TABLE IF NOT EXISTS Stats (
+                country_id TEXT PRIMARY KEY,
+                tech_level INTEGER DEFAULT 1 NOT NULL,
+                gdp INTEGER DEFAULT 0 NOT NULL,
+                FOREIGN KEY (country_id) REFERENCES Countries(country_id)
+                    ON DELETE CASCADE
+            );
+
+            -- VIEW : Population totale par pays
+            CREATE VIEW IF NOT EXISTS PopulationView AS
+            SELECT
+                country_id,
+                SUM(population) AS population
+            FROM Regions
+            GROUP BY country_id;
+
+            -- VIEW : Capacité d’accueil par pays
+            CREATE VIEW IF NOT EXISTS PopulationCapacityView AS
+            SELECT
+                r.country_id,
+                SUM(s.capacity) AS population_capacity
+            FROM Structures s
+            JOIN Regions r ON s.region_id = r.region_id
+            WHERE s.type IN ('Logement')  -- tu peux changer selon le gameplay
+            GROUP BY r.country_id;
+
+            -- VIEW : Vue globale des stats
+            CREATE VIEW IF NOT EXISTS StatsView AS
+            SELECT
+                c.country_id,
+                c.name,
+                IFNULL(p.population, 0) AS population,
+                IFNULL(pc.population_capacity, 0) AS population_capacity,
+                IFNULL(s.tech_level, 1) AS tech_level,
+                IFNULL(s.gdp, 0) AS gdp
+            FROM Countries c
+            LEFT JOIN Stats s ON c.country_id = s.country_id
+            LEFT JOIN PopulationView p ON c.country_id = p.country_id
+            LEFT JOIN PopulationCapacityView pc ON c.country_id = pc.country_id;
+            
+            CREATE VIEW IF NOT EXISTS CountryStructuresView AS
+            SELECT
+                c.country_id,
+                c.name AS country_name,
+                r.region_id,
+                r.name AS region_name,
+                s.id AS structure_id,
+                s.type,
+                s.specialization,
+                s.level,
+                s.capacity,
+                s.population
+            FROM Structures s
+            JOIN Regions r ON s.region_id = r.region_id
+            JOIN Countries c ON r.country_id = c.country_id;
         """
         )
         conn.commit()
@@ -264,20 +265,17 @@ class Database:
         self.conn.commit()
 
     def give_balance(self, country_id, amount):
-        """Give money to a player."""
-        result = self.get_balance(country_id)
-        if result is not None:
+        """Give money to a country."""
+        try:
             self.cur.execute(
-                "UPDATE Inventory SET balance = balance + ? WHERE country_id = ?",
-                (amount, country_id),
+                "INSERT INTO Inventory (country_id, balance) VALUES (?, ?) "
+                "ON CONFLICT(country_id) DO UPDATE SET balance = balance + ?",
+                (country_id, amount, amount),
             )
-        else:
-            self.cur.execute(
-                "INSERT INTO Inventory (country_id, balance) VALUES (?, ?)",
-                (country_id, amount),
-            )
-        self.conn.commit()
-
+            self.conn.commit()
+        except sqlite3.IntegrityError:
+            raise (f"ERREUR : Le pays {country_id} n'existe pas dans Countries.")
+        
     def take_balance(self, country_id, amount):
         """Take money from a country."""
         result = self.get_balance(country_id)
@@ -384,7 +382,9 @@ class Database:
             )
         return self.cur.fetchall()
 
-    def give_bat(self, country_id, level: int, bat_type: int, specialization: str, region_id: str):
+    def give_bat(
+        self, country_id, level: int, bat_type: int, specialization: str, region_id: str
+    ):
         """Ajoute un bâtiment dans une région donnée."""
         from config import bat_types, bat_buffs
 
@@ -419,7 +419,7 @@ class Database:
             (bat_id,),
         )
         self.conn.commit()
-        
+
     def edit_bat(self, bat_id: int, level: int = None, specialization: str = None):
         """Modifie le niveau ou la spécialisation d’un bâtiment."""
         # On récupère l’ancien bâtiment
@@ -429,7 +429,9 @@ class Database:
             return
 
         bat_type = row[0]  # nom du type ("Usine", etc.)
-        matched_type = next((bt for bt in bat_types.values() if bt[0] == bat_type), None)
+        matched_type = next(
+            (bt for bt in bat_types.values() if bt[0] == bat_type), None
+        )
         if not matched_type:
             return
 
@@ -464,7 +466,9 @@ class Database:
             return "Bâtiment introuvable."
 
         bat_type_name, level = row
-        matched_type = next((bt for bt in bat_types.values() if bt[0] == bat_type_name), None)
+        matched_type = next(
+            (bt for bt in bat_types.values() if bt[0] == bat_type_name), None
+        )
         if not matched_type:
             return "Type de bâtiment invalide."
 
@@ -485,21 +489,21 @@ class Database:
 
     def get_leads(self, lead_type: int, user_id: str):
         if lead_type == 1:
-            self.cur.execute("SELECT player_id FROM inventory ORDER BY balance DESC")
+            self.cur.execute("SELECT country_id FROM Inventory ORDER BY balance DESC")
         elif lead_type == 2:
-            self.cur.execute("SELECT player_id FROM inventory ORDER BY pol_points DESC")
+            self.cur.execute("SELECT country_id FROM Inventory ORDER BY pol_points DESC")
         elif lead_type == 3:
             self.cur.execute(
-                "SELECT player_id FROM inventory ORDER BY diplo_points DESC"
+                "SELECT country_id FROM Inventory ORDER BY diplo_points DESC"
             )
         elif lead_type == 4:
             self.cur.execute(
-                "SELECT player_id FROM inventory ORDER BY (balance + pol_points + diplo_points) DESC"
+                "SELECT country_id FROM Inventory ORDER BY (balance * (pol_points + diplo_points)) DESC"
             )
         leaderboard = self.cur.fetchall()
         leaderboard = [
             str(row[0]) for row in leaderboard
-        ]  # Extraire uniquement les `player_id` dans une liste
+        ]  # Extraire uniquement les `country_id` dans une liste
         return (
             leaderboard.index(str(user_id)) + 1 if str(user_id) in leaderboard else -1
         )
@@ -508,11 +512,11 @@ class Database:
         """Get the leaderboard of players based on their balance."""
         if size <= 0:
             self.cur.execute(
-                "SELECT player_id, balance FROM inventory ORDER BY balance DESC"
+                "SELECT country_id, balance FROM Inventory ORDER BY balance DESC"
             )
         else:
             self.cur.execute(
-                "SELECT player_id, balance FROM inventory ORDER BY balance DESC LIMIT ?",
+                "SELECT country_id, balance FROM Inventory ORDER BY balance DESC LIMIT ?",
                 (size,),
             )
         leaderboard = self.cur.fetchall()
@@ -567,7 +571,7 @@ class Database:
     async def get_leaderboard(self, offset=0, limit=10):
         """Get the leaderboard of players based on their total points (balance + political points + diplomatic points)."""
         self.cur.execute(
-            f"SELECT player_id, balance, pol_points, diplo_points FROM inventory ORDER BY (balance + pol_points + diplo_points) DESC LIMIT {limit} OFFSET {offset}"
+            f"SELECT country_id, balance, pol_points, diplo_points FROM Inventory ORDER BY (balance * (pol_points + diplo_points)) DESC LIMIT {limit} OFFSET {offset}"
         )
         return self.cur.fetchall()
 
@@ -694,7 +698,7 @@ class Database:
 
     async def get_non_player_role(ctx):
         return ctx.guild.get_role(873955513921048646)
-    
+
     def get_players_government(self, player_id: int) -> str:
         """Récupère le gouvernement d'un joueur."""
         self.cur.execute(
@@ -748,3 +752,96 @@ class Database:
         )
         result = self.cur.fetchone()
         return result[0] if result else None
+    
+    def get_country_by_role(self, role_id: str) -> str:
+        """Récupère le pays associé à un rôle Discord."""
+        self.cur.execute(
+            "SELECT country_id FROM Countries WHERE role_id = ?", (role_id,)
+        )
+        result = self.cur.fetchone()
+        return result[0] if result else None
+    
+    def get_country_datas(self, country_id: str) -> dict:
+        """Récupère les données d'un pays."""
+        self.cur.execute(
+            "SELECT * FROM Countries WHERE country_id = ?", (country_id,)
+        )
+        result = self.cur.fetchone()
+        if result:
+            return {
+                "country_id": result["country_id"],
+                "name": result["name"],
+                "role_id": result["role_id"],
+                "public_channel_id": result["public_channel_id"],
+                "secret_channel_id": result["secret_channel_id"],
+                "last_bilan": result["last_bilan"],
+            }
+        return None
+
+    def execute_script(self, script: str):
+        """Execute a SQL script."""
+        try:
+            self.cur.executescript(script)
+            self.conn.commit()
+        except sqlite3.Error as e:
+            print(f"Erreur lors de l'exécution du script : {e}")
+            self.conn.rollback()
+            
+    def debug_init(self):
+        # Valeurs d'entrée
+        user_id = "293869524091142144"  # Remplace par ton ID utilisateur Discord
+        public_channel_id = "9876543210"
+        secret_channel_id = None  # ou une vraie valeur
+        role_id = "873645550820556831"  # Remplace par l'ID du rôle Discord
+        
+        self.cur.execute("SELECT country_id FROM Countries WHERE name = ?", ("Testland",))
+        existing_country = self.cur.fetchone()
+        if existing_country:
+            print("Pays de test 'Testland' déjà existant.")
+            return
+
+        # 1. Créer le pays
+        self.cur.execute("""
+            INSERT INTO Countries (name, role_id, public_channel_id, secret_channel_id)
+            VALUES (?, ?, ?, ?)
+        """, ("Testland", role_id, public_channel_id, secret_channel_id))
+        self.conn.commit()
+
+        # 2. Récupérer l'ID du pays nouvellement créé
+        self.cur.execute("SELECT country_id FROM Countries WHERE name = ?", ("Testland",))
+        country_id = self.cur.fetchone()[0]
+
+        # 3. Créer une région fictive
+        self.cur.execute("""
+            INSERT INTO Regions (country_id, name, mapchart_name, population)
+            VALUES (?, ?, ?, ?)
+        """, (country_id, "Testopolis", "testopolis_map", 100000))
+        self.conn.commit()
+
+        # 4. Ajouter au gouvernement (slot 1)
+        self.cur.execute("""
+            INSERT INTO Governments (
+                country_id, slot, player_id,
+                can_spend_money, can_spend_points, can_sign_treaties,
+                can_build, can_recruit, can_produce, can_declare_war
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (country_id, 1, user_id, True, True, True, True, True, True, True))
+        self.conn.commit()
+
+        # 5. Initialiser l'inventaire
+        self.cur.execute("""
+            INSERT INTO Inventory (
+                country_id, balance, pol_points, diplo_points,
+                soldiers, reserves
+            ) VALUES (?, ?, ?, ?, ?, ?)
+        """, (country_id, 100000, 50, 50, 1000, 500))
+        self.conn.commit()
+
+        # 6. Initialiser les stats
+        self.cur.execute("""
+            INSERT INTO Stats (country_id, tech_level, gdp)
+            VALUES (?, ?, ?)
+        """, (country_id, 2, 1500000))
+        self.conn.commit()
+
+        print(f"Pays de test 'Testland' créé avec l'ID {country_id} et l'utilisateur {user_id} au gouvernement.")

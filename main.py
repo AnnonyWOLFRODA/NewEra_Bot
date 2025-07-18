@@ -8,8 +8,7 @@ import asyncio
 import discord.utils
 from time import sleep
 import json
-from discord.ext.commands import has_role
-from discord.ext.commands import Context
+from discord.ext.commands import has_role, Context, Converter, BadArgument
 import urllib.request
 import random
 import aiohttp
@@ -93,7 +92,6 @@ db = Database()
 dUtils = discordUtils(bot)
 # Créer une nouvelle connexion et table
 
-
 class CountryEntity:
     def __init__(self, entity: Union[discord.User, discord.Role], guild: discord.Guild):
         self.entity = entity
@@ -101,28 +99,57 @@ class CountryEntity:
 
     @property
     def is_user(self) -> bool:
-        return isinstance(self.entity, discord.User)
+        return isinstance(self.entity, (discord.User, discord.Member))
 
     @property
     def is_role(self) -> bool:
         return isinstance(self.entity, discord.Role)
 
-    def get_country_role(self) -> discord.Role | None:
-        """
-        Retourne le rôle-pays associé à un utilisateur.
-        Suppose que le nom du rôle-pays est le même que le pseudo, ou suit un certain préfixe logique.
-        À adapter selon ton système.
-        """
+    def get_country_id(self) -> int:
         if not self.is_user:
-            return self.entity  # si c’est déjà un rôle, on le retourne
+            return db.get_country_by_role(self.entity.id)
 
-        member: discord.Member = self.guild.get_member(self.entity.id)
+        member = self.guild.get_member(self.entity.id)
         if not member:
             return None
+        return db.get_players_government(member.id)
 
-        db.get_players_government(member.id)
+    def to_dict(self) -> dict:
+        country_id = self.get_country_id()
+        if not country_id:
+            return {
+                "name": getattr(self.entity, "name", "Inconnu"),
+                "id": None,
+                "role": None,
+            }
 
-        return None
+        datas = db.get_country_datas(country_id)
+        if not datas:
+            return {
+                "name": getattr(self.entity, "name", "Inconnu"),
+                "id": country_id,
+                "role": None,
+            }
+        role = self.guild.get_role(int(datas.get("role_id")))
+        return {
+            "name": datas.get("name"),
+            "id": country_id,
+            "role": role
+        }
+
+class CountryConverter(Converter):
+    async def convert(self, ctx, argument):
+        try:
+            member = await commands.MemberConverter().convert(ctx, argument)
+            entity = CountryEntity(member, ctx.guild)
+        except BadArgument:
+            try:
+                role = await commands.RoleConverter().convert(ctx, argument)
+                entity = CountryEntity(role, ctx.guild)
+            except BadArgument:
+                raise BadArgument("Entité inconnue.")
+
+        return entity.to_dict()
 
 with open("datas/usines.json") as f:
     production_data = json.load(f)
@@ -139,6 +166,13 @@ with open("datas/main.json") as f:
     starting_amounts = json_data["starting_amounts"]
     usefull_role_ids_dic = json_data["usefull_role_ids_dic"]
     buildQuality = json_data["buildQuality"]
+
+
+### DEBUG
+
+db.debug_init()
+
+### 
 
 @bot.event
 async def on_message(message):
@@ -441,12 +475,21 @@ async def construction_immeuble(ctx, goal: str = None) -> None:
     )
 
 @bot.command()
-async def give(ctx, user: discord.Member, amount: Union[int, str]):
-    author = ctx.author
-    sender_balance = db.get_balance(author.id)
+async def give(ctx, country: CountryConverter, amount: Union[int, str]):
+    author = CountryEntity(ctx.author, ctx.guild).get_country_id()
+    if not author or not country:
+        embed = discord.Embed(
+            title="Erreur de donation",
+            description=":moneybag: L'utilisateur ou le pays spécifié est invalide.",
+            color=error_color_int,
+        )
+        await ctx.send(embed=embed)
+        return
+    sender_balance = db.get_balance(author.id)    
     if sender_balance is None:
         sender_balance = 0
-    if not amount_converter(amount, sender_balance):
+    payment_amount = amount_converter(amount, sender_balance)
+    if not payment_amount:
         embed = discord.Embed(
             title="Erreur de donation",
             description=":moneybag: Le montant spécifié est invalide.",
@@ -454,7 +497,6 @@ async def give(ctx, user: discord.Member, amount: Union[int, str]):
         )
         await ctx.send(embed=embed)
         return
-    payment_amount = amount_converter(amount, sender_balance)
     if not db.has_enough_balance(author.id, payment_amount):
         print(sender_balance, payment_amount)
         embed = discord.Embed(
@@ -464,21 +506,18 @@ async def give(ctx, user: discord.Member, amount: Union[int, str]):
         )
         await ctx.send(embed=embed)
         return
-    recipient_balance = db.get_balance(user.id)
-    if recipient_balance is None:
-        recipient_balance = 0
-    db.give_balance(user.id, payment_amount)
+    db.give_balance(country.id, payment_amount)
     db.take_balance(author.id, payment_amount)
     transa_embed = discord.Embed(
         title="Opération réussie",
-        description=f":moneybag: **{convert(str(payment_amount))}** ont été donnés à l'utilisateur {user.mention}.",
+        description=f":moneybag: **{convert(str(payment_amount))}** ont été donnés à {country.mention}.",
         color=money_color_int,
     )
-    await eco_logger("M1", payment_amount, ctx.author, user)
+    await eco_logger("M1", payment_amount, ctx.author, country)
     await ctx.send(embed=transa_embed)
 
 @bot.command()
-async def remove_money(ctx, user: discord.Member, amount: Union[int, str]):
+async def remove_money(ctx, user: CountryConverter, amount: Union[int, str]):
     if not dUtils.is_authorized(ctx):
         embed = discord.Embed(
             title="Vous n'êtes pas autorisé à effectuer cette commande.",
@@ -602,21 +641,29 @@ async def remove_pd(ctx, user: discord.Member, amount: Union[int, str]):
     await ctx.send(embed=embed)
 
 @bot.command()
-async def bal(ctx, user: discord.Member = None):
-    if user is None:
-        user = ctx.author
-    balance = db.get_balance(str(user.id))
+async def bal(ctx, country: CountryConverter = None):
+    if not country:
+        country = CountryEntity(ctx.author, ctx.guild).to_dict()
+    if not country or not country.get("id"):
+        embed = discord.Embed(
+            title="Erreur de balance",
+            description=":moneybag: L'utilisateur ou le pays spécifié est invalide.",
+            color=error_color_int,
+        )
+        await ctx.send(embed=embed)
+        return
+    balance = db.get_balance(country.get("id"))
     if balance == 0:
         embed = discord.Embed(
             title=":moneybag: Cet utilisateur n'a pas d'argent", color=money_color_int
         )
     else:
         embed = discord.Embed(
-            title=f"Balance de {user.name}",
-            description=f":moneybag: L'utilisateur {user.name} a **{convert(str(balance))} d'argent**.",
+            title=f"Balance de {country.get('name')}",
+            description=f":moneybag: L'utilisateur {country.get('name')} a **{convert(str(balance))} d'argent**.",
             color=money_color_int,
         )
-        embed.set_footer(text=f"Classement: {db.get_leads(1, user.id)}")
+        embed.set_footer(text=f"Classement: {db.get_leads(1, country.get('id'))}")
     await ctx.send(embed=embed)
 
 @bot.command()
@@ -721,7 +768,16 @@ async def set_pd(ctx, user: discord.Member, amount: int):
     await ctx.send(embed=embed)
 
 @bot.command()
-async def add_money(ctx, user: discord.Member, amount: int):
+async def add_money(ctx, country: CountryConverter, amount: int):
+    """Ajoute de l'argent à un utilisateur ou un pays."""
+    if not country.get("id"):
+        embed = discord.Embed(
+            title="Erreur d'ajout d'argent",
+            description=":moneybag: L'utilisateur ou le pays spécifié est invalide.",
+            color=error_color_int,
+        )
+        await ctx.send(embed=embed)
+        return
     if not dUtils.is_authorized(ctx):
         embed = discord.Embed(
             title="Vous n'êtes pas autorisé à effectuer cette commande.",
@@ -731,13 +787,14 @@ async def add_money(ctx, user: discord.Member, amount: int):
         await ctx.send(embed=embed)
         return
 
-    db.give_balance(str(user.id), amount)
+    db.give_balance(country.get("id"), amount)
     embed = discord.Embed(
         title="Opération réussie",
-        description=f":moneybag: **{convert(str(amount))}** ont été ajoutés à l'utilisateur {user.name}.",
+        description=f":moneybag: **{convert(str(amount))}** ont été ajoutés à l'utilisateur {country.get('name')}.",
         color=money_color_int,
     )
-    await eco_logger("M2", amount, user, ctx.author)
+    
+    await eco_logger("M2", amount, country.get("role"), ctx.author)
     await ctx.send(embed=embed)
 
 @bot.command()
