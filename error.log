@@ -843,3 +843,6 @@ INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: f28c0fb
 INFO:discord.client:logging in using static token
 INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: a998dca2cf030351252018d437b5c0ec).
 INFO:discord.gateway:Shard ID None has successfully RESUMED session a998dca2cf030351252018d437b5c0ec.
+INFO:discord.gateway:Shard ID None has successfully RESUMED session a998dca2cf030351252018d437b5c0ec.
+INFO:discord.gateway:Shard ID None has successfully RESUMED session a998dca2cf030351252018d437b5c0ec.
+INFO:discord.gateway:Shard ID None has successfully RESUMED session a998dca2cf030351252018d437b5c0ec.
