@@ -476,8 +476,8 @@ async def construction_immeuble(ctx, goal: str = None) -> None:
 
 @bot.command()
 async def give(ctx, country: CountryConverter, amount: Union[int, str]):
-    author = CountryEntity(ctx.author, ctx.guild).get_country_id()
-    if not author or not country:
+    author = CountryEntity(ctx.author, ctx.guild).to_dict()
+    if not author or not country or not country.get("id"):
         embed = discord.Embed(
             title="Erreur de donation",
             description=":moneybag: L'utilisateur ou le pays spécifié est invalide.",
@@ -485,7 +485,7 @@ async def give(ctx, country: CountryConverter, amount: Union[int, str]):
         )
         await ctx.send(embed=embed)
         return
-    sender_balance = db.get_balance(author.id)    
+    sender_balance = db.get_balance(author.get("id"))
     if sender_balance is None:
         sender_balance = 0
     payment_amount = amount_converter(amount, sender_balance)
@@ -497,27 +497,27 @@ async def give(ctx, country: CountryConverter, amount: Union[int, str]):
         )
         await ctx.send(embed=embed)
         return
-    if not db.has_enough_balance(author.id, payment_amount):
+    if not db.has_enough_balance(author.get("id"), payment_amount):
         print(sender_balance, payment_amount)
         embed = discord.Embed(
             title="Erreur de donation",
-            description=f":moneybag: L'utilisateur {ctx.author.mention} n'a pas assez d'argent.",
+            description=f":moneybag: L'utilisateur {author.get('role').mention} n'a pas assez d'argent.",
             color=error_color_int,
         )
         await ctx.send(embed=embed)
         return
-    db.give_balance(country.id, payment_amount)
-    db.take_balance(author.id, payment_amount)
+    db.give_balance(country.get("id"), payment_amount)
+    db.take_balance(author.get("id"), payment_amount)
     transa_embed = discord.Embed(
         title="Opération réussie",
-        description=f":moneybag: **{convert(str(payment_amount))}** ont été donnés à {country.mention}.",
+        description=f":moneybag: **{convert(str(payment_amount))}** ont été donnés à {country.get('role').mention}.",
         color=money_color_int,
     )
-    await eco_logger("M1", payment_amount, ctx.author, country)
+    await eco_logger("M1", payment_amount, author.get("role"), country.get("role"))
     await ctx.send(embed=transa_embed)
 
 @bot.command()
-async def remove_money(ctx, user: CountryConverter, amount: Union[int, str]):
+async def remove_money(ctx, country: CountryConverter, amount: Union[int, str]):
     if not dUtils.is_authorized(ctx):
         embed = discord.Embed(
             title="Vous n'êtes pas autorisé à effectuer cette commande.",
@@ -527,39 +527,55 @@ async def remove_money(ctx, user: CountryConverter, amount: Union[int, str]):
         await ctx.send(embed=embed)
         return
 
-    balance = db.get_balance(user.id)
-    if balance is None:
-        balance = 0
-
-    if not amount_converter(amount, balance):
+    if not country or not country.get("id"):
         embed = discord.Embed(
-            title="Erreur de retrait d'argent",
+            title="Erreur",
+            description=":moneybag: Le pays spécifié est invalide.",
+            color=error_color_int,
+        )
+        await ctx.send(embed=embed)
+        return
+
+    balance = db.get_balance(country.get("id")) or 0
+    payment_amount = amount_converter(amount, balance)
+
+    if not payment_amount:
+        embed = discord.Embed(
+            title="Erreur de retrait",
             description=":moneybag: Le montant spécifié est invalide.",
             color=error_color_int,
         )
         await ctx.send(embed=embed)
         return
 
-    payment_amount = amount_converter(amount, balance)
-    if not db.has_enough_balance(user.id, payment_amount):
+    if not db.has_enough_balance(country.get("id"), payment_amount):
         embed = discord.Embed(
-            title="Erreur de retrait d'argent",
-            description=f":moneybag: L'utilisateur {user.name} n'a pas assez d'argent.",
+            title="Erreur de retrait",
+            description=f":moneybag: Le pays {country.get('role').mention} n'a pas assez d'argent.",
             color=error_color_int,
         )
         await ctx.send(embed=embed)
         return
-    db.take_balance(user.id, payment_amount)
+
+    db.take_balance(country.get("id"), payment_amount)
+
     embed = discord.Embed(
         title="Opération réussie",
-        description=f":moneybag: **{convert(str(payment_amount))}** ont été retirés de la réserve d'argent de l'utilisateur {user.name}.",
+        description=f":moneybag: **{convert(str(payment_amount))}** ont été retirés du pays {country.get('role').mention}.",
         color=money_color_int,
     )
-    await eco_logger("M5", payment_amount, user, ctx.author)
+    await eco_logger("M5", payment_amount, country.get("role"), ctx.author)
     await ctx.send(embed=embed)
 
 @bot.command()
-async def remove_pp(ctx, user: discord.Member, amount: Union[int, str]):
+async def remove_pp(ctx, cible: CountryConverter, amount: Union[int, str]):
+    await _remove_points_generic(ctx, cible, amount, 1, ":blue_circle:", p_points_color_int)
+
+@bot.command()
+async def remove_pd(ctx, cible: CountryConverter, amount: Union[int, str]):
+    await _remove_points_generic(ctx, cible, amount, 2, ":purple_circle:", d_points_color_int)
+
+async def _remove_points_generic(ctx, cible, amount: Union[int, str], point_type: int, emoji: str, color: int):
     if not dUtils.is_authorized(ctx):
         embed = discord.Embed(
             title="Vous n'êtes pas autorisé à effectuer cette commande.",
@@ -569,75 +585,49 @@ async def remove_pp(ctx, user: discord.Member, amount: Union[int, str]):
         await ctx.send(embed=embed)
         return
 
-    points = db.get_points(user.id, 1)
-    if not amount_converter(amount, points):
+    if not cible or not cible.get("id"):
         embed = discord.Embed(
-            title="Erreur de retrait de points",
-            description=":blue_circle: Le montant spécifié est invalide.",
+            title="Erreur",
+            description=f"{emoji} Utilisateur ou pays invalide.",
             color=error_color_int,
         )
         await ctx.send(embed=embed)
         return
 
-    payment_amount = amount_converter(amount, points)
+    cible_id = str(cible["id"])
+    cible_nom = cible["name"]
+    cible_obj = cible["role"]
 
-    if not db.has_enough_points(user.id, payment_amount, 1):
+    current_points = db.get_points(cible_id, point_type) or 0
+
+    if not amount_converter(amount, current_points):
         embed = discord.Embed(
             title="Erreur de retrait de points",
-            description=f":blue_circle: L'utilisateur {user.name} n'a pas assez de points.",
+            description=f"{emoji} Le montant spécifié est invalide.",
             color=error_color_int,
         )
         await ctx.send(embed=embed)
         return
 
-    db.take_points(user.id, payment_amount, 1)
+    payment_amount = amount_converter(amount, current_points)
+
+    if not db.has_enough_points(cible_id, payment_amount, point_type):
+        embed = discord.Embed(
+            title="Erreur de retrait de points",
+            description=f"{emoji} {cible_nom} n'a pas assez de points.",
+            color=error_color_int,
+        )
+        await ctx.send(embed=embed)
+        return
+
+    db.take_points(cible_id, payment_amount, point_type)
+
     embed = discord.Embed(
         title="Opération réussie",
-        description=f":blue_circle: **{payment_amount}** ont été retirés des points de l'utilisateur {user.name}.",
-        color=p_points_color_int,
+        description=f"{emoji} **{payment_amount}** ont été retirés des points de {cible_nom}.",
+        color=color,
     )
-    await eco_logger("P4", payment_amount, user, ctx.author, 1)
-    await ctx.send(embed=embed)
-
-@bot.command()
-async def remove_pd(ctx, user: discord.Member, amount: Union[int, str]):
-    if not dUtils.is_authorized(ctx):
-        embed = discord.Embed(
-            title="Vous n'êtes pas autorisé à effectuer cette commande.",
-            description="Il vous faut être staff",
-            color=error_color_int,
-        )
-        await ctx.send(embed=embed)
-        return
-
-    points = db.get_points(user.id, 2)
-    if not amount_converter(amount, points):
-        embed = discord.Embed(
-            title="Erreur de retrait de points",
-            description=":purple_circle: Le montant spécifié est invalide.",
-            color=error_color_int,
-        )
-        await ctx.send(embed=embed)
-        return
-
-    payment_amount = amount_converter(amount, points)
-
-    if not db.has_enough_points(user.id, payment_amount, 2):
-        embed = discord.Embed(
-            title="Erreur de retrait de points",
-            description=f":purple_circle: L'utilisateur {user.name} n'a pas assez de points.",
-            color=error_color_int,
-        )
-        await ctx.send(embed=embed)
-        return
-
-    db.take_points(user.id, payment_amount, 2)
-    embed = discord.Embed(
-        title="Opération réussie",
-        description=f":purple_circle: **{payment_amount}** ont été retirés des points de l'utilisateur {user.name}.",
-        color=d_points_color_int,
-    )
-    await eco_logger("P4", payment_amount, user, ctx.author, 2)
+    await eco_logger("P4", payment_amount, cible_obj, ctx.author, point_type)
     await ctx.send(embed=embed)
 
 @bot.command()
@@ -667,45 +657,49 @@ async def bal(ctx, country: CountryConverter = None):
     await ctx.send(embed=embed)
 
 @bot.command()
-async def points_p(ctx, user: discord.Member = None):
-    if user is None:
-        user = ctx.author
-    balance = db.get_points(str(user.id), 1)
+async def points_p(ctx, cible: CountryConverter = None):
+    if cible is None:
+        cible = CountryEntity(ctx.author, ctx.guild).to_dict()
+    await _show_points_generic(ctx, cible, 1, ":blue_circle:", p_points_color_int, 2)
+
+@bot.command()
+async def points_d(ctx, cible: CountryConverter = None):
+    if cible is None:
+        cible = CountryEntity(ctx.author, ctx.guild).to_dict()
+    await _show_points_generic(ctx, cible, 2, ":purple_circle:", d_points_color_int, 3)
+
+async def _show_points_generic(ctx, cible, point_type: int, emoji: str, color: int, lead_type: int):
+    if not cible or not cible.get("id"):
+        embed = discord.Embed(
+            title=f"{emoji} Utilisateur ou pays invalide.",
+            color=error_color_int,
+        )
+        await ctx.send(embed=embed)
+        return
+
+    cible_id = str(cible["id"])
+    cible_nom = cible["name"]
+    cible_obj = cible["role"]
+
+    balance = db.get_points(cible_id, point_type) or 0
+
     if balance == 0:
         embed = discord.Embed(
-            title=":blue_circle: Cet utilisateur n'a pas de points politiques.",
-            color=p_points_color_int,
+            title=f"{emoji} {cible_nom} n'a pas de points de ce type.",
+            color=color,
         )
     else:
         embed = discord.Embed(
-            title=f"Nombre de points politiques de {user.name}",
-            description=f":blue_circle: L'utilisateur {user.name} a **{balance} points politiques**.",
-            color=p_points_color_int,
+            title=f"Nombre de points de {cible_nom}",
+            description=f"{emoji} {cible_nom} a **{balance} points**.",
+            color=color,
         )
-        embed.set_footer(text=f"Classement: {db.get_leads(2, user.id)}")
+        embed.set_footer(text=f"Classement: {db.get_leads(lead_type, cible_id)}")
+
     await ctx.send(embed=embed)
 
 @bot.command()
-async def points_d(ctx, user: discord.Member = None):
-    if user is None:
-        user = ctx.author
-    balance = db.get_points(str(user.id), 2)
-    if balance == 0:
-        embed = discord.Embed(
-            title=":purple_circle: Cet utilisateur n'a pas de points diplomatiques.",
-            color=d_points_color_int,
-        )
-    else:
-        embed = discord.Embed(
-            title=f"Nombre de points diplomatiques de {user.name}",
-            description=f":purple_circle: L'utilisateur {user.name} a **{balance} points diplomatiques**.",
-            color=d_points_color_int,
-        )
-        embed.set_footer(text=f"Classement: {db.get_leads(3, user.id)}")
-    await ctx.send(embed=embed)
-
-@bot.command()
-async def set_money(ctx, user: discord.Member, amount: int):
+async def set_money(ctx, country: CountryConverter, amount: int):
     if not dUtils.is_authorized(ctx):
         embed = discord.Embed(
             title="Vous n'êtes pas autorisé à effectuer cette commande.",
@@ -715,18 +709,34 @@ async def set_money(ctx, user: discord.Member, amount: int):
         await ctx.send(embed=embed)
         return
 
-    db.set_balance(str(user.id), amount)
+    if not country or not country.get("id"):
+        embed = discord.Embed(
+            title="Erreur",
+            description=":moneybag: Le pays spécifié est invalide.",
+            color=error_color_int,
+        )
+        await ctx.send(embed=embed)
+        return
+
+    db.set_balance(country.get("id"), amount)
 
     embed = discord.Embed(
         title="Opération réussie",
-        description=f":moneybag: **{convert(str(amount))}** dollars ont été définis pour l'utilisateur {user.name}.",
+        description=f":moneybag: **{convert(str(amount))}** ont été définis pour {country.get('role').mention}.",
         color=money_color_int,
     )
-    await eco_logger("M3", amount, user, ctx.author)
+    await eco_logger("M3", amount, country.get("role"), ctx.author)
     await ctx.send(embed=embed)
 
 @bot.command()
-async def set_pp(ctx, user: discord.Member, amount: int):
+async def set_pp(ctx, cible: CountryConverter, amount: int):
+    await _set_points_generic(ctx, cible, amount, 1, ":blue_circle:", p_points_color_int)
+
+@bot.command()
+async def set_pd(ctx, cible: CountryConverter, amount: int):
+    await _set_points_generic(ctx, cible, amount, 2, ":purple_circle:", d_points_color_int)
+
+async def _set_points_generic(ctx, cible, amount: int, point_type: int, emoji: str, color: int):
     if not dUtils.is_authorized(ctx):
         embed = discord.Embed(
             title="Vous n'êtes pas autorisé à effectuer cette commande.",
@@ -736,35 +746,24 @@ async def set_pp(ctx, user: discord.Member, amount: int):
         await ctx.send(embed=embed)
         return
 
-    db.set_points(str(user.id), amount, 1)
+    # Extraction des données du CountryConverter
+    cible_id = str(cible["id"])
+    cible_nom = cible["name"]
+    cible_obj = cible["role"]
 
+    # Définition des points
+    db.set_points(cible_id, amount, point_type)
+
+    # Création de l'embed de confirmation
     embed = discord.Embed(
         title="Opération réussie",
-        description=f":blue_circle: **{amount}** points politiques ont été définis pour l'utilisateur {user.name}.",
-        color=p_points_color_int,
+        description=f"{emoji} **{amount}** points ont été définis pour {cible_nom}.",
+        color=color,
     )
-    await eco_logger("P2", amount, user, ctx.author, 1)
-    await ctx.send(embed=embed)
 
-@bot.command()
-async def set_pd(ctx, user: discord.Member, amount: int):
-    if not dUtils.is_authorized(ctx):
-        embed = discord.Embed(
-            title="Vous n'êtes pas autorisé à effectuer cette commande.",
-            description="Il vous faut être staff",
-            color=error_color_int,
-        )
-        await ctx.send(embed=embed)
-        return
+    # Journalisation de l’opération
+    await eco_logger("P2", amount, cible_obj, ctx.author, point_type)
 
-    db.set_points(str(user.id), amount, 2)
-
-    embed = discord.Embed(
-        title="Opération réussie",
-        description=f":purple_circle: **{amount}** points diplomatiques ont été définis pour l'utilisateur {user.name}.",
-        color=d_points_color_int,
-    )
-    await eco_logger("P2", amount, user, ctx.author, 2)
     await ctx.send(embed=embed)
 
 @bot.command()
@@ -798,27 +797,14 @@ async def add_money(ctx, country: CountryConverter, amount: int):
     await ctx.send(embed=embed)
 
 @bot.command()
-async def add_pp(ctx, user: discord.Member, amount: int):
-    if not dUtils.is_authorized(ctx):
-        embed = discord.Embed(
-            title="Vous n'êtes pas autorisé à effectuer cette commande.",
-            description="Il vous faut être staff",
-            color=error_color_int,
-        )
-        await ctx.send(embed=embed)
-        return
-
-    db.give_points(str(user.id), amount, 1)
-    embed = discord.Embed(
-        title="Opération réussie",
-        description=f":blue_circle: **{amount}** ont été ajoutés à l'utilisateur {user.name}.",
-        color=p_points_color_int,
-    )
-    await eco_logger("P1", amount, user, ctx.author, 1)
-    await ctx.send(embed=embed)
+async def add_pp(ctx, cible: CountryConverter, amount: int):
+    await _add_points_generic(ctx, cible, amount, 1, ":blue_circle:", p_points_color_int)
 
 @bot.command()
-async def add_pd(ctx, user: discord.Member, amount: int):
+async def add_pd(ctx, cible: CountryConverter, amount: int):
+    await _add_points_generic(ctx, cible, amount, 2, ":purple_circle:", d_points_color_int)
+
+async def _add_points_generic(ctx, cible, amount: int, point_type: int, emoji: str, color: int):
     if not dUtils.is_authorized(ctx):
         embed = discord.Embed(
             title="Vous n'êtes pas autorisé à effectuer cette commande.",
@@ -828,21 +814,30 @@ async def add_pd(ctx, user: discord.Member, amount: int):
         await ctx.send(embed=embed)
         return
 
-    db.give_points(str(user.id), amount, 2)
+    # Extraction des données depuis le CountryConverter
+    cible_id = str(cible["id"])
+    cible_nom = cible["name"]
+    cible_obj = cible["role"]
+
+    # On donne les points
+    db.give_points(cible_id, amount, point_type)
+
+    # Embed de confirmation
     embed = discord.Embed(
         title="Opération réussie",
-        description=f":purple_circle: **{amount}** ont été ajoutés à l'utilisateur {user.name}.",
-        color=d_points_color_int,
+        description=f"{emoji} **{amount}** ont été ajoutés à l'utilisateur {cible_nom}.",
+        color=color,
     )
-    await eco_logger("P1", amount, user, ctx.author, 2)
+    await eco_logger("P1", amount, cible_obj, ctx.author, point_type)
     await ctx.send(embed=embed)
 
 @bot.command()
 async def pay(ctx, amount: Union[int, str]):
-    user = ctx.author
-    balance = db.get_balance(str(user.id))
+    country = CountryEntity(ctx.author, ctx.guild).to_dict()
+    balance = db.get_balance(country.get("id"))
 
-    if not amount_converter(amount, balance):
+    payment_amount = amount_converter(amount, balance)
+    if not payment_amount:
         embed = discord.Embed(
             title="Erreur de retrait d'argent",
             description=":moneybag: Le montant spécifié est invalide.",
@@ -851,9 +846,7 @@ async def pay(ctx, amount: Union[int, str]):
         await ctx.send(embed=embed)
         return
 
-    payment_amount = amount_converter(amount, balance)
-
-    if not db.has_enough_balance(user.id, payment_amount):
+    if not db.has_enough_balance(country.get("id"), payment_amount):
         embed = discord.Embed(
             title="Erreur de paiement",
             description=f":moneybag: Vous n'avez pas assez d'argent pour effectuer cette transaction.",
@@ -862,20 +855,31 @@ async def pay(ctx, amount: Union[int, str]):
         await ctx.send(embed=embed)
         return
 
-    db.take_balance(user.id, payment_amount)
+    db.take_balance(country.get("id"), payment_amount)
     embed = discord.Embed(
         title="Opération réussie",
         description=f":moneybag: **{convert(str(payment_amount))}** ont été payés au bot.",
         color=money_color_int,
     )
-    await eco_logger("M4", payment_amount, ctx.author)
+    await eco_logger("M4", payment_amount, country.get("role"), ctx.author)
     await ctx.send(embed=embed)
 
 @bot.command()
 async def use_pp(ctx, amount: int = 1):
-    user = ctx.author
-    points = db.get_points(user.id, 1)
-    if not amount_converter(amount, points):
+    country = CountryEntity(ctx.author, ctx.guild).to_dict()
+    
+    if not country or not country.get("id"):
+        embed = discord.Embed(
+            title="Erreur d'utilisation des points",
+            description=":blue_circle: Impossible d'identifier votre pays.",
+            color=error_color_int,
+        )
+        await ctx.send(embed=embed)
+        return
+
+    current_points = db.get_points(country["id"], 1) or 0
+
+    if not amount_converter(amount, current_points):
         embed = discord.Embed(
             title="Erreur d'utilisation des points",
             description=":blue_circle: Le montant spécifié est invalide.",
@@ -884,30 +888,44 @@ async def use_pp(ctx, amount: int = 1):
         await ctx.send(embed=embed)
         return
 
-    payment_amount = amount_converter(amount, points)
+    payment_amount = amount_converter(amount, current_points)
 
-    if not db.has_enough_points(user.id, amount, 1):
+    if not db.has_enough_points(country["id"], payment_amount, 1):
         embed = discord.Embed(
             title="Erreur d'utilisation des points",
-            description=f":blue_circle: L'utilisateur {ctx.author.mention} n'a pas assez de points politiques.",
+            description=f":blue_circle: Le pays {country['name']} n'a pas assez de points politiques.",
             color=error_color_int,
         )
         await ctx.send(embed=embed)
         return
-    db.take_points(user.id, payment_amount, 1)
+
+    db.take_points(country["id"], payment_amount, 1)
+    
     embed = discord.Embed(
         title="Opération réussie",
-        description=f":blue_circle: **{amount}** points politiques ont été utilisés par {user.name}.",
+        description=f":blue_circle: **{payment_amount}** points politiques ont été utilisés par {country['role'].mention}.",
         color=p_points_color_int,
     )
-    await eco_logger("P3", amount, ctx.author, None, 1)
+    
+    await eco_logger("P3", payment_amount, country["role"], None, 1)
     await ctx.send(embed=embed)
 
 @bot.command()
 async def use_pd(ctx, amount: int = 1):
-    user = ctx.author
-    points = db.get_points(user.id, 2)
-    if not amount_converter(amount, points):
+    country = CountryEntity(ctx.author, ctx.guild).to_dict()
+
+    if not country or not country.get("id"):
+        embed = discord.Embed(
+            title="Erreur d'utilisation des points",
+            description=":purple_circle: Impossible d'identifier votre pays.",
+            color=error_color_int,
+        )
+        await ctx.send(embed=embed)
+        return
+
+    current_points = db.get_points(country["id"], 2) or 0
+
+    if not amount_converter(amount, current_points):
         embed = discord.Embed(
             title="Erreur d'utilisation des points",
             description=":purple_circle: Le montant spécifié est invalide.",
@@ -916,23 +934,26 @@ async def use_pd(ctx, amount: int = 1):
         await ctx.send(embed=embed)
         return
 
-    payment_amount = amount_converter(amount, points)
+    payment_amount = amount_converter(amount, current_points)
 
-    if not db.has_enough_points(user.id, amount, 2):
+    if not db.has_enough_points(country["id"], payment_amount, 2):
         embed = discord.Embed(
             title="Erreur d'utilisation des points",
-            description=f":purple_circle: L'utilisateur {ctx.author.mention} n'a pas assez de points diplomatiques.",
+            description=f":purple_circle: Le pays {country['name']} n'a pas assez de points diplomatiques.",
             color=error_color_int,
         )
         await ctx.send(embed=embed)
         return
-    db.take_points(user.id, payment_amount, 2)
+
+    db.take_points(country["id"], payment_amount, 2)
+
     embed = discord.Embed(
         title="Opération réussie",
-        description=f":purple_circle: **{amount}** points diplomatiques ont été utilisés par {user.name}.",
+        description=f":purple_circle: **{payment_amount}** points diplomatiques ont été utilisés par {country['role'].mention}.",
         color=d_points_color_int,
     )
-    await eco_logger("P3", amount, ctx.author, None, 2)
+
+    await eco_logger("P3", payment_amount, country["role"], None, 2)
     await ctx.send(embed=embed)
 
 @bot.command()
@@ -942,14 +963,14 @@ async def lead(ctx):
             title=f"Classement des pays (de {offset + 1} à {offset + len(leaderboard)})",
             color=0x00FF00,
         )
-        for i, (user_id, balance, pp, pd) in enumerate(leaderboard, offset + 1):
-            user = ctx.guild.get_member(int(user_id))
-            if user:
-                username = user.name + f" - {str(user_id)}"
+        for i, (role_id, balance, pp, pd) in enumerate(leaderboard, offset + 1):
+            role = ctx.guild.get_role(int(role_id))
+            if role:
+                rolename = role.name + f" - {str(role_id)}"
             else:
-                username = str(user_id) + " - Non identifié"
+                rolename = str(role_id) + " - Non identifié"
             embed.add_field(
-                name=f"{i}. {username}",
+                name=f"{i}. {rolename}",
                 value=f":moneybag: **{convert(str(balance))}** argent -- :blue_circle: **{pp}** points politiques -- :green_circle: **{pd}** points diplos",
                 inline=False,
             )

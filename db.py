@@ -222,7 +222,7 @@ class Database:
             return False
         if amount <= 0:
             return False
-        return int(result[0]) >= int(amount)
+        return int(result) >= int(amount)
 
     def has_enough_points(self, country_id, amount, type: int = 1):
         """Check if a player has enough points."""
@@ -231,7 +231,7 @@ class Database:
             return False
         if amount <= 0:
             return False
-        return result[0] >= amount
+        return result >= amount
 
     def set_balance(self, country_id, amount):
         """Set the balance of a country."""
@@ -569,10 +569,18 @@ class Database:
         return leaderboard
 
     async def get_leaderboard(self, offset=0, limit=10):
-        """Get the leaderboard of players based on their total points (balance + political points + diplomatic points)."""
-        self.cur.execute(
-            f"SELECT country_id, balance, pol_points, diplo_points FROM Inventory ORDER BY (balance * (pol_points + diplo_points)) DESC LIMIT {limit} OFFSET {offset}"
-        )
+        """
+        Récupère le classement des pays basé sur le total points :
+        balance * (pol_points + diplo_points)
+        Retourne aussi le rôle (role_id) pour affichage.
+        """
+        self.cur.execute("""
+            SELECT Countries.role_id, Inventory.balance, Inventory.pol_points, Inventory.diplo_points
+            FROM Inventory
+            JOIN Countries ON Inventory.country_id = Countries.country_id
+            ORDER BY (Inventory.balance * (Inventory.pol_points + Inventory.diplo_points)) DESC
+            LIMIT ? OFFSET ?
+        """, (limit, offset))
         return self.cur.fetchall()
 
     # Fonction pour calculer le temps de production
@@ -788,60 +796,86 @@ class Database:
             self.conn.rollback()
             
     def debug_init(self):
-        # Valeurs d'entrée
-        user_id = "293869524091142144"  # Remplace par ton ID utilisateur Discord
-        public_channel_id = "9876543210"
-        secret_channel_id = None  # ou une vraie valeur
-        role_id = "873645550820556831"  # Remplace par l'ID du rôle Discord
-        
-        self.cur.execute("SELECT country_id FROM Countries WHERE name = ?", ("Testland",))
-        existing_country = self.cur.fetchone()
-        if existing_country:
-            print("Pays de test 'Testland' déjà existant.")
-            return
+        test_data = [
+            {
+                "name": "Testland",
+                "role_id": "873645550820556831",
+                "public_channel_id": "9876543210",
+                "secret_channel_id": None,
+                "region": "Testopolis",
+                "region_map": "testopolis_map",
+                "user_id": "293869524091142144",
+            },
+            {
+                "name": "Debuglia",
+                "role_id": "873645549826486323",
+                "public_channel_id": "9876543211",
+                "secret_channel_id": None,
+                "region": "Debugton",
+                "region_map": "debugton_map",
+                "user_id": "868399385149579274",
+            }
+        ]
 
-        # 1. Créer le pays
-        self.cur.execute("""
-            INSERT INTO Countries (name, role_id, public_channel_id, secret_channel_id)
-            VALUES (?, ?, ?, ?)
-        """, ("Testland", role_id, public_channel_id, secret_channel_id))
-        self.conn.commit()
+        for country in test_data:
+            # 1. Vérifier l'existence
+            self.cur.execute("SELECT country_id FROM Countries WHERE name = ?", (country["name"],))
+            existing = self.cur.fetchone()
+            if existing:
+                print(f"Pays de test '{country['name']}' déjà existant.")
+                continue
 
-        # 2. Récupérer l'ID du pays nouvellement créé
-        self.cur.execute("SELECT country_id FROM Countries WHERE name = ?", ("Testland",))
-        country_id = self.cur.fetchone()[0]
+            # 2. Créer le pays
+            self.cur.execute("""
+                INSERT INTO Countries (name, role_id, public_channel_id, secret_channel_id)
+                VALUES (?, ?, ?, ?)
+            """, (
+                country["name"],
+                country["role_id"],
+                country["public_channel_id"],
+                country["secret_channel_id"]
+            ))
+            self.conn.commit()
 
-        # 3. Créer une région fictive
-        self.cur.execute("""
-            INSERT INTO Regions (country_id, name, mapchart_name, population)
-            VALUES (?, ?, ?, ?)
-        """, (country_id, "Testopolis", "testopolis_map", 100000))
-        self.conn.commit()
+            # 3. Récupérer l’ID
+            self.cur.execute("SELECT country_id FROM Countries WHERE name = ?", (country["name"],))
+            country_id = self.cur.fetchone()[0]
 
-        # 4. Ajouter au gouvernement (slot 1)
-        self.cur.execute("""
-            INSERT INTO Governments (
-                country_id, slot, player_id,
-                can_spend_money, can_spend_points, can_sign_treaties,
-                can_build, can_recruit, can_produce, can_declare_war
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (country_id, 1, user_id, True, True, True, True, True, True, True))
-        self.conn.commit()
+            # 4. Région fictive
+            self.cur.execute("""
+                INSERT INTO Regions (country_id, name, mapchart_name, population)
+                VALUES (?, ?, ?, ?)
+            """, (country_id, country["region"], country["region_map"], 100000))
+            self.conn.commit()
 
-        # 5. Initialiser l'inventaire
-        self.cur.execute("""
-            INSERT INTO Inventory (
-                country_id, balance, pol_points, diplo_points,
-                soldiers, reserves
-            ) VALUES (?, ?, ?, ?, ?, ?)
-        """, (country_id, 100000, 50, 50, 1000, 500))
-        self.conn.commit()
+            # 5. Gouvernement
+            self.cur.execute("""
+                INSERT INTO Governments (
+                    country_id, slot, player_id,
+                    can_spend_money, can_spend_points, can_sign_treaties,
+                    can_build, can_recruit, can_produce, can_declare_war
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                country_id, 1, country["user_id"],
+                True, True, True,
+                True, True, True, True
+            ))
+            self.conn.commit()
 
-        # 6. Initialiser les stats
-        self.cur.execute("""
-            INSERT INTO Stats (country_id, tech_level, gdp)
-            VALUES (?, ?, ?)
-        """, (country_id, 2, 1500000))
-        self.conn.commit()
+            # 6. Inventaire
+            self.cur.execute("""
+                INSERT INTO Inventory (
+                    country_id, balance, pol_points, diplo_points,
+                    soldiers, reserves
+                ) VALUES (?, ?, ?, ?, ?, ?)
+            """, (country_id, 100000, 50, 50, 1000, 500))
+            self.conn.commit()
 
-        print(f"Pays de test 'Testland' créé avec l'ID {country_id} et l'utilisateur {user_id} au gouvernement.")
+            # 7. Stats
+            self.cur.execute("""
+                INSERT INTO Stats (country_id, tech_level, gdp)
+                VALUES (?, ?, ?)
+            """, (country_id, 2, 1500000))
+            self.conn.commit()
+
+            print(f"Pays de test '{country['name']}' créé avec l'ID {country_id} et l'utilisateur {country['user_id']} au gouvernement.")
