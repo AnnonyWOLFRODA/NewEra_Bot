@@ -1,7 +1,7 @@
 import sqlite3
 from config import debug
 import math
-
+import os
 
 class Database:
     """Database class to handle database operations."""
@@ -16,39 +16,6 @@ class Database:
     def old_db(self):
         print(
             """
-            CREATE TABLE IF NOT EXISTS inventory (
-                player_id TEXT PRIMARY KEY,
-                balance INTEGER DEFAULT 0 NOT NULL,
-                pol_points INTEGER DEFAULT 0 NOT NULL,
-                diplo_points INTEGER DEFAULT 0 NOT NULL,
-                usine_lvl1 INTEGER DEFAULT 0 NOT NULL,
-                usine_lvl2 INTEGER DEFAULT 0 NOT NULL,
-                usine_lvl3 INTEGER DEFAULT 0 NOT NULL,
-                usine_lvl4 INTEGER DEFAULT 0 NOT NULL,
-                usine_lvl5 INTEGER DEFAULT 0 NOT NULL,
-                usine_lvl6 INTEGER DEFAULT 0 NOT NULL,
-                usine_lvl7 INTEGER DEFAULT 0 NOT NULL,
-                terrestre_1 INTEGER DEFAULT 0 NOT NULL,
-                terrestre_2 INTEGER DEFAULT 0 NOT NULL,
-                terrestre_3 INTEGER DEFAULT 0 NOT NULL,
-                terrestre_4 INTEGER DEFAULT 0 NOT NULL,
-                terrestre_5 INTEGER DEFAULT 0 NOT NULL,
-                terrestre_6 INTEGER DEFAULT 0 NOT NULL,
-                terrestre_7 INTEGER DEFAULT 0 NOT NULL,
-                aerienne_1 INTEGER DEFAULT 0 NOT NULL,
-                aerienne_2 INTEGER DEFAULT 0 NOT NULL,
-                aerienne_3 INTEGER DEFAULT 0 NOT NULL,
-                aerienne_4 INTEGER DEFAULT 0 NOT NULL,
-                maritime_1 INTEGER DEFAULT 0 NOT NULL,
-                maritime_2 INTEGER DEFAULT 0 NOT NULL,
-                maritime_3 INTEGER DEFAULT 0 NOT NULL,
-                maritime_4 INTEGER DEFAULT 0 NOT NULL,
-                ecole_1 INTEGER DEFAULT 0 NOT NULL,
-                ecole_2 INTEGER DEFAULT 0 NOT NULL,
-                ecole_3 INTEGER DEFAULT 0 NOT NULL,
-                ecole_4 INTEGER DEFAULT 0 NOT NULL,
-                population_capacity INTEGER DEFAULT 0 NOT NULL
-            )
         """
         )
 
@@ -57,140 +24,15 @@ class Database:
         conn = sqlite3.connect("datas/rts.db", check_same_thread=False)
         conn.row_factory = sqlite3.Row  # Enable row factory for dict-like access
         cur = conn.cursor()
-
-        # Create inventory table
-        cur.executescript(
-            """
-            -- Table des pays
-            CREATE TABLE IF NOT EXISTS Countries (
-                country_id INTEGER PRIMARY KEY AUTOINCREMENT,   -- Identifiant unique du pays
-                role_id    TEXT NOT NULL,                       -- ID du rôle Discord associé
-                name TEXT NOT NULL,                             -- Nom du pays
-                public_channel_id TEXT NOT NULL,                -- ID du salon public (NON NULLABLE)
-                secret_channel_id TEXT,                         -- ID du salon secret (NULLABLE)
-                last_bilan TEXT DEFAULT NULL                    -- Dernier bilan du pays (NULLABLE)
-            );
-
-            -- Table des régions
-            CREATE TABLE IF NOT EXISTS Regions (
-                region_id INTEGER PRIMARY KEY AUTOINCREMENT, -- Identifiant unique de la région
-                country_id TEXT NOT NULL,                    -- Pour rattacher la région à un pays
-                name TEXT NOT NULL,                          -- Nom de la région
-                mapchart_name TEXT NOT NULL,                 -- Nom associé à MapChart
-                population INTEGER DEFAULT 0 NOT NULL,       -- Population de la région
-                FOREIGN KEY (country_id) REFERENCES Countries(country_id)
-                    ON DELETE CASCADE
-            );
-
-            -- Table des gouvernements
-            CREATE TABLE IF NOT EXISTS Governments (
-                country_id TEXT NOT NULL,
-                slot INTEGER NOT NULL CHECK (slot BETWEEN 1 AND 5),
-                player_id TEXT NOT NULL,  -- ID du joueur occupant ce poste
-                can_spend_money BOOLEAN DEFAULT FALSE,
-                can_spend_points BOOLEAN DEFAULT FALSE,
-                can_sign_treaties BOOLEAN DEFAULT FALSE,
-                can_build BOOLEAN DEFAULT FALSE,
-                can_recruit BOOLEAN DEFAULT FALSE,
-                can_produce BOOLEAN DEFAULT FALSE,
-                can_declare_war BOOLEAN DEFAULT FALSE,
-                PRIMARY KEY (country_id, slot),
-                FOREIGN KEY (country_id) REFERENCES Countries(country_id)
-                    ON DELETE CASCADE
-            );
-
-            -- Table de l’inventaire
-            CREATE TABLE IF NOT EXISTS Inventory (
-                country_id TEXT PRIMARY KEY,
-                balance INTEGER DEFAULT 0 NOT NULL,
-                pol_points INTEGER DEFAULT 0 NOT NULL,
-                diplo_points INTEGER DEFAULT 0 NOT NULL,
-                soldiers INTEGER DEFAULT 0 NOT NULL,
-                reserves INTEGER DEFAULT 0 NOT NULL,
-                FOREIGN KEY (country_id) REFERENCES Countries(country_id)
-                    ON DELETE CASCADE
-            );
-
-            -- Table des structures
-            CREATE TABLE IF NOT EXISTS Structures (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                region_id TEXT NOT NULL,
-                type TEXT NOT NULL CHECK (type IN ('Usine', 'Base', 'Ecole', 'Logement')),
-                specialization TEXT NOT NULL CHECK (specialization IN ('Terrestre', 'Aerienne', 'Navale', 'NA')),
-                level INTEGER NOT NULL DEFAULT 1,
-                capacity INTEGER DEFAULT 0 NOT NULL,  -- Capacité utile pour les logements/ecoles/bases
-                population INTEGER DEFAULT 0 NOT NULL,  -- nb personnes affectées pour logements, bases, écoles, usines
-                FOREIGN KEY (region_id) REFERENCES Regions(region_id)
-                    ON DELETE CASCADE
-            );
-
-            -- Table des stats fixes
-            CREATE TABLE IF NOT EXISTS Stats (
-                country_id TEXT PRIMARY KEY,
-                tech_level INTEGER DEFAULT 1 NOT NULL,
-                gdp INTEGER DEFAULT 0 NOT NULL,
-                FOREIGN KEY (country_id) REFERENCES Countries(country_id)
-                    ON DELETE CASCADE
-            );
-
-            -- VIEW : Population totale par pays
-            CREATE VIEW IF NOT EXISTS PopulationView AS
-            SELECT
-                country_id,
-                SUM(population) AS population
-            FROM Regions
-            GROUP BY country_id;
-
-            -- VIEW : Capacité d’accueil par pays
-            CREATE VIEW IF NOT EXISTS PopulationCapacityView AS
-            SELECT
-                r.country_id,
-                SUM(s.capacity) AS population_capacity
-            FROM Structures s
-            JOIN Regions r ON s.region_id = r.region_id
-            WHERE s.type IN ('Logement')  -- tu peux changer selon le gameplay
-            GROUP BY r.country_id;
-
-            -- VIEW : Vue globale des stats
-            CREATE VIEW IF NOT EXISTS StatsView AS
-            SELECT
-                c.country_id,
-                c.name,
-                IFNULL(p.population, 0) AS population,
-                IFNULL(pc.population_capacity, 0) AS population_capacity,
-                IFNULL(s.tech_level, 1) AS tech_level,
-                IFNULL(s.gdp, 0) AS gdp
-            FROM Countries c
-            LEFT JOIN Stats s ON c.country_id = s.country_id
-            LEFT JOIN PopulationView p ON c.country_id = p.country_id
-            LEFT JOIN PopulationCapacityView pc ON c.country_id = pc.country_id;
-            
-            CREATE VIEW IF NOT EXISTS CountryStructuresView AS
-            SELECT
-                c.country_id,
-                c.name AS country_name,
-                r.region_id,
-                r.name AS region_name,
-                s.id AS structure_id,
-                s.type,
-                s.specialization,
-                s.level,
-                s.capacity,
-                s.population
-            FROM Structures s
-            JOIN Regions r ON s.region_id = r.region_id
-            JOIN Countries c ON r.country_id = c.country_id;
-        """
-        )
+        for filename in sorted(os.listdir("datas/db_schemas")):
+            if filename.endswith(".sql"):
+                with open(f"datas/db_schemas/{filename}", "r", encoding="utf-8") as f:
+                    content = f.read()
+                    if debug:
+                        print(f"{filename}:\n{content}\n")
+                    cur.executescript(content)
         conn.commit()
 
-        if debug:
-            # N.B for DB debug : Deleting the file won't work. You have to incode DROP the table & creating it back.
-            cur.execute("PRAGMA table_info(inventory)")
-            columns = cur.fetchall()
-            cols = ["".join(str(tups)) for tups in columns]
-            with open("db_test.logs", "w") as f:
-                f.write("\n".join(cols) + "\n")
         return conn, cur
 
     def get_balance(self, country_id):

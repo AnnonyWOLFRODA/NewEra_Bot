@@ -926,3 +926,20 @@ Traceback (most recent call last):
 discord.errors.ConnectionClosed: Shard ID None WebSocket closed with 1000
 INFO:discord.gateway:Shard ID None has successfully RESUMED session 63620cdd51cd3ab1b3b3ea3a22f2ae2e.
 INFO:discord.gateway:Shard ID None has successfully RESUMED session 63620cdd51cd3ab1b3b3ea3a22f2ae2e.
+INFO:discord.gateway:Shard ID None has successfully RESUMED session 63620cdd51cd3ab1b3b3ea3a22f2ae2e.
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 092c1fb0be768679f0bfca4639afaea2).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 241e4a598f6d06cc6d0f85a5f32286f4).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 5433310edfa6a78477d4b723f7cba1e5).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: f97c59517073c8e088215ce30b43ba11).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 091905683b60b7e5c79a02eb31367e8c).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 38136f72bf79b2ba775b3a8de11cffc1).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 66e1aaceba1f71c8cae05895dc702b0e).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: f4d0d877b7d46db7c1a8d5cc12f06089).
