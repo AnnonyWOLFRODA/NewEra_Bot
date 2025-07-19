@@ -18,15 +18,27 @@ import secrets
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)  # Generate secure random key
-db_path = os.path.join(os.path.dirname(__file__), "../datas/rts.db")
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////" + db_path
+
+# Configure multiple databases
+admin_db_path = os.path.join(os.path.dirname(__file__), "admin.db")
+game_db_path = os.path.join(os.path.dirname(__file__), "../datas/rts.db")
+
+app.config["SQLALCHEMY_DATABASE_URI"] = (
+    "sqlite:////" + admin_db_path
+)  # Default for admin users
+app.config["SQLALCHEMY_BINDS"] = {
+    "game": "sqlite:////" + game_db_path  # Game data database
+}
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 
 # All database models
 class User(db.Model):
+    """Admin Users - stored in separate admin database"""
+
     __tablename__ = "AdminUsers"
+    # Uses default database (admin.db)
 
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -45,6 +57,133 @@ class User(db.Model):
     def check_password(self, password):
         """Check if provided password matches hash"""
         return check_password_hash(self.password_hash, password)
+
+
+# Game database models
+class Country(db.Model):
+    """Countries - stored in game database"""
+
+    __bind_key__ = "game"
+    __tablename__ = "Countries"
+
+    country_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    role_id = db.Column(db.String, nullable=False)
+    name = db.Column(db.String, nullable=False)
+    public_channel_id = db.Column(db.String, nullable=False)
+    secret_channel_id = db.Column(db.String)
+    last_bilan = db.Column(db.String)
+
+
+class Government(db.Model):
+    """Governments - stored in game database"""
+
+    __bind_key__ = "game"
+    __tablename__ = "Governments"
+
+    country_id = db.Column(db.String, primary_key=True)
+    slot = db.Column(db.Integer, primary_key=True)
+    player_id = db.Column(db.String, nullable=False)
+    can_spend_money = db.Column(db.Boolean, default=False)
+    can_spend_points = db.Column(db.Boolean, default=False)
+    can_sign_treaties = db.Column(db.Boolean, default=False)
+    can_build = db.Column(db.Boolean, default=False)
+    can_recruit = db.Column(db.Boolean, default=False)
+    can_produce = db.Column(db.Boolean, default=False)
+    can_declare_war = db.Column(db.Boolean, default=False)
+
+
+class Doctrine(db.Model):
+    """Doctrines - stored in game database"""
+
+    __bind_key__ = "game"
+    __tablename__ = "Doctrines"
+
+    doctrine_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String, nullable=False)
+    category = db.Column(db.String)  # Régime, Idéologie, Économie, Religieux
+    description = db.Column(db.Text)
+    discord_role_id = db.Column(db.String)
+    bonus_json = db.Column(db.Text)  # JSON string for bonuses
+
+
+class Inventory(db.Model):
+    """Inventory - stored in game database"""
+
+    __bind_key__ = "game"
+    __tablename__ = "Inventory"
+
+    country_id = db.Column(db.Integer, primary_key=True)
+    balance = db.Column(db.Integer, default=0, nullable=False)
+    pol_points = db.Column(db.Integer, default=0, nullable=False)
+    diplo_points = db.Column(db.Integer, default=0, nullable=False)
+    soldiers = db.Column(db.Integer, default=0, nullable=False)
+    reserves = db.Column(db.Integer, default=0, nullable=False)
+
+
+class Region(db.Model):
+    """Regions - stored in game database"""
+
+    __bind_key__ = "game"
+    __tablename__ = "Regions"
+
+    region_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    country_id = db.Column(db.Integer)
+    name = db.Column(db.String, nullable=False)
+    mapchart_name = db.Column(db.String, nullable=False)
+    population = db.Column(db.Integer, default=0, nullable=False)
+
+
+class Structure(db.Model):
+    """Structures - stored in game database"""
+
+    __bind_key__ = "game"
+    __tablename__ = "Structures"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    region_id = db.Column(db.String, nullable=False)
+    type = db.Column(db.String, nullable=False)
+    specialization = db.Column(db.String, nullable=False)
+    level = db.Column(db.Integer, default=1, nullable=False)
+    capacity = db.Column(db.Integer, default=0, nullable=False)
+    population = db.Column(db.Integer, default=0, nullable=False)
+
+
+class Stats(db.Model):
+    """Stats - stored in game database"""
+
+    __bind_key__ = "game"
+    __tablename__ = "Stats"
+
+    country_id = db.Column(db.Integer, primary_key=True)
+    tech_level = db.Column(db.Integer, default=1, nullable=False)
+    gdp = db.Column(db.Integer, default=0, nullable=False)
+
+
+class Technology(db.Model):
+    """Technologies - stored in game database"""
+
+    __bind_key__ = "game"
+    __tablename__ = "Technologies"
+
+    tech_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String, nullable=False)
+    image_url = db.Column(db.String)
+    developed_by = db.Column(db.Integer)
+    exported = db.Column(db.Boolean, default=False)
+    type = db.Column(db.String, nullable=False)
+    description = db.Column(db.Text)
+    created_at = db.Column(db.String)
+
+
+class CountryTechnology(db.Model):
+    """Country Technologies - stored in game database"""
+
+    __bind_key__ = "game"
+    __tablename__ = "CountryTechnologies"
+
+    country_id = db.Column(db.Integer, primary_key=True)
+    tech_field = db.Column(db.String, primary_key=True)
+    level = db.Column(db.Integer, default=1, nullable=False)
 
 
 # Authentication decorators
@@ -271,112 +410,6 @@ def index():
     return render_template(
         "index.html", tables_info=tables_info, current_user=current_user
     )
-
-
-class Country(db.Model):
-    __tablename__ = "Countries"
-
-    country_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    role_id = db.Column(db.String, nullable=False)
-    name = db.Column(db.String, nullable=False)
-    public_channel_id = db.Column(db.String, nullable=False)
-    secret_channel_id = db.Column(db.String)
-    last_bilan = db.Column(db.String)
-
-
-class Government(db.Model):
-    __tablename__ = "Governments"
-
-    country_id = db.Column(db.String, primary_key=True)
-    slot = db.Column(db.Integer, primary_key=True)
-    player_id = db.Column(db.String, nullable=False)
-    can_spend_money = db.Column(db.Boolean, default=False)
-    can_spend_points = db.Column(db.Boolean, default=False)
-    can_sign_treaties = db.Column(db.Boolean, default=False)
-    can_build = db.Column(db.Boolean, default=False)
-    can_recruit = db.Column(db.Boolean, default=False)
-    can_produce = db.Column(db.Boolean, default=False)
-    can_declare_war = db.Column(db.Boolean, default=False)
-
-
-class Doctrine(db.Model):
-    __tablename__ = "Doctrines"
-
-    doctrine_id = db.Column(db.String, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-    category = db.Column(db.String)
-    description = db.Column(db.Text)
-    discord_role_id = db.Column(db.String)
-    bonus_json = db.Column(db.JSON)
-
-
-class CountryDoctrine(db.Model):
-    __tablename__ = "CountryDoctrines"
-
-    country_id = db.Column(db.String, primary_key=True)
-    doctrine_id = db.Column(db.String, primary_key=True)
-
-
-class Inventory(db.Model):
-    __tablename__ = "Inventory"
-
-    country_id = db.Column(db.String, primary_key=True)
-    balance = db.Column(db.Integer, default=0, nullable=False)
-    pol_points = db.Column(db.Integer, default=0, nullable=False)
-    diplo_points = db.Column(db.Integer, default=0, nullable=False)
-    soldiers = db.Column(db.Integer, default=0, nullable=False)
-    reserves = db.Column(db.Integer, default=0, nullable=False)
-
-
-class Region(db.Model):
-    __tablename__ = "Regions"
-
-    region_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    country_id = db.Column(db.String)
-    name = db.Column(db.String, nullable=False)
-    mapchart_name = db.Column(db.String, nullable=False)
-    population = db.Column(db.Integer, default=0, nullable=False)
-
-
-class Structure(db.Model):
-    __tablename__ = "Structures"
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    region_id = db.Column(db.String, nullable=False)
-    type = db.Column(db.String, nullable=False)
-    specialization = db.Column(db.String, nullable=False)
-    level = db.Column(db.Integer, default=1, nullable=False)
-    capacity = db.Column(db.Integer, default=0, nullable=False)
-    population = db.Column(db.Integer, default=0, nullable=False)
-
-
-class Stats(db.Model):
-    __tablename__ = "Stats"
-
-    country_id = db.Column(db.String, primary_key=True)
-    tech_level = db.Column(db.Integer, default=1, nullable=False)
-    gdp = db.Column(db.Integer, default=0, nullable=False)
-
-
-class CountryTechnology(db.Model):
-    __tablename__ = "CountryTechnologies"
-
-    country_id = db.Column(db.String, primary_key=True)
-    tech_field = db.Column(db.String, primary_key=True)
-    level = db.Column(db.Integer, default=1, nullable=False)
-
-
-class Technology(db.Model):
-    __tablename__ = "Technologies"
-
-    tech_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String, nullable=False)
-    image_url = db.Column(db.String)
-    developed_by = db.Column(db.Integer)
-    exported = db.Column(db.Boolean, default=False)
-    type = db.Column(db.String, nullable=False)
-    description = db.Column(db.Text)
-    created_at = db.Column(db.String)
 
 
 # Routes
@@ -692,6 +725,67 @@ def add_technology():
     return render_template("add_technology.html", countries=countries)
 
 
+# Doctrines Management
+@app.route("/doctrines")
+@login_required
+def doctrines():
+    doctrines = Doctrine.query.all()
+    return render_template("doctrines.html", doctrines=doctrines)
+
+
+@app.route("/doctrines/add", methods=["GET", "POST"])
+@login_required
+def add_doctrine():
+    if request.method == "POST":
+        try:
+            doctrine = Doctrine(
+                name=request.form["name"],
+                category=request.form["category"],
+                description=request.form["description"] or None,
+                discord_role_id=request.form["discord_role_id"] or None,
+                bonus_json=request.form["bonus_json"] or None,
+            )
+            db.session.add(doctrine)
+            db.session.commit()
+            flash("Doctrine added successfully!", "success")
+            return redirect("/doctrines")
+        except Exception as e:
+            flash(f"Error: {str(e)}", "error")
+    return render_template("add_doctrine.html")
+
+
+@app.route("/doctrines/edit/<int:doctrine_id>", methods=["GET", "POST"])
+@login_required
+def edit_doctrine(doctrine_id):
+    doctrine = Doctrine.query.get_or_404(doctrine_id)
+    if request.method == "POST":
+        try:
+            doctrine.name = request.form["name"]
+            doctrine.category = request.form["category"]
+            doctrine.description = request.form["description"] or None
+            doctrine.discord_role_id = request.form["discord_role_id"] or None
+            doctrine.bonus_json = request.form["bonus_json"] or None
+            db.session.commit()
+            flash("Doctrine updated successfully!", "success")
+            return redirect("/doctrines")
+        except Exception as e:
+            flash(f"Error: {str(e)}", "error")
+    return render_template("edit_doctrine.html", doctrine=doctrine)
+
+
+@app.route("/doctrines/delete/<int:doctrine_id>", methods=["POST"])
+@login_required
+def delete_doctrine(doctrine_id):
+    try:
+        doctrine = Doctrine.query.get_or_404(doctrine_id)
+        db.session.delete(doctrine)
+        db.session.commit()
+        flash("Doctrine deleted successfully!", "success")
+    except Exception as e:
+        flash(f"Error: {str(e)}", "error")
+    return redirect("/doctrines")
+
+
 # API endpoints for dynamic updates
 @app.route("/api/countries")
 @login_required
@@ -715,8 +809,14 @@ def api_regions_by_country(country_id):
 if __name__ == "__main__":
     with app.app_context():
         try:
-            # Try to create tables if they don't exist
+            # Create admin database tables (User model)
             db.create_all()
+
+            # Create game database tables (all game models)
+            db.create_all(bind_key="game")
+
+            print("✓ Database tables created successfully")
+
         except Exception as e:
             print(f"Database initialization error: {e}")
 

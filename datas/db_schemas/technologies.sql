@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS CountryTechnologies (
-    country_id TEXT NOT NULL,
+    country_id INTEGER NOT NULL,
     tech_field TEXT NOT NULL CHECK (
         tech_field IN (
             'Armement',
@@ -21,6 +21,8 @@ CREATE TABLE IF NOT EXISTS CountryTechnologies (
 CREATE TABLE IF NOT EXISTS Technologies (
     tech_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
+    original_name TEXT NOT NULL,
+    technology_level INTEGER NOT NULL DEFAULT 1 CHECK (technology_level >= 1 AND technology_level <= 11),
     image_url TEXT,
     developed_by INTEGER,
     exported BOOLEAN DEFAULT FALSE,

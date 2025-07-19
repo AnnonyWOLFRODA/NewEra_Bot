@@ -1,6 +1,6 @@
 -- Table de l’inventaire
 CREATE TABLE IF NOT EXISTS Inventory (
-    country_id TEXT PRIMARY KEY,
+    country_id INTEGER PRIMARY KEY,
     balance INTEGER DEFAULT 0 NOT NULL,
     pol_points INTEGER DEFAULT 0 NOT NULL,
     diplo_points INTEGER DEFAULT 0 NOT NULL,

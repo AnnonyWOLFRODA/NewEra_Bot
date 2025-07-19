@@ -1,7 +1,7 @@
 import discord
 
 # Debug flag
-debug = False
+debug = True
 
 # Discord setup
 intents = discord.Intents().all()

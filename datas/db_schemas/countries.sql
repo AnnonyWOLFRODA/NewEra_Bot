@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS Countries (
 
 -- Table des gouvernements
 CREATE TABLE IF NOT EXISTS Governments (
-    country_id TEXT NOT NULL,
+    country_id INTEGER NOT NULL,
     slot INTEGER NOT NULL CHECK (slot BETWEEN 1 AND 5),
     player_id TEXT NOT NULL,  -- ID du joueur occupant ce poste
     can_spend_money BOOLEAN DEFAULT FALSE,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS Governments (
 );
 
 CREATE TABLE IF NOT EXISTS Doctrines (
-    doctrine_id TEXT PRIMARY KEY,
+    doctrine_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     category TEXT CHECK (category IN ('Régime', 'Idéologie', 'Économie', 'Religieux')),
     description TEXT,
@@ -35,8 +35,8 @@ CREATE TABLE IF NOT EXISTS Doctrines (
 );
 
 CREATE TABLE IF NOT EXISTS CountryDoctrines (
-    country_id TEXT NOT NULL,
-    doctrine_id TEXT NOT NULL,
+    country_id INTEGER NOT NULL,
+    doctrine_id INTEGER NOT NULL,
     PRIMARY KEY (country_id, doctrine_id),
     FOREIGN KEY (country_id) REFERENCES Countries(country_id) ON DELETE CASCADE,
     FOREIGN KEY (doctrine_id) REFERENCES Doctrines(doctrine_id)

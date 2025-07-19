@@ -946,3 +946,20 @@ INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: f4d0d87
 INFO:discord.gateway:Shard ID None has successfully RESUMED session f4d0d877b7d46db7c1a8d5cc12f06089.
 INFO:discord.gateway:Shard ID None has successfully RESUMED session f4d0d877b7d46db7c1a8d5cc12f06089.
 INFO:discord.gateway:Shard ID None has successfully RESUMED session f4d0d877b7d46db7c1a8d5cc12f06089.
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 3060851e5a16b7f0d467e0a36d98551f).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: c7c3233e183a0105dd03c11eef292784).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 7e87936f28bd54b81a73edca9b484c50).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: a3d3fe165f6dbc6aa7e3260d97e2d1cd).
+INFO:discord.gateway:Shard ID None has successfully RESUMED session a3d3fe165f6dbc6aa7e3260d97e2d1cd.
+INFO:discord.gateway:Shard ID None has successfully RESUMED session a3d3fe165f6dbc6aa7e3260d97e2d1cd.
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 175f74c68ee3094afc581ba1b7193db1).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: dcb8cdcd088d45f969db9feafb84f431).
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: 7686b0f70c8781be2fdb52bd5967d36f).
+INFO:discord.gateway:Shard ID None has successfully RESUMED session 7686b0f70c8781be2fdb52bd5967d36f.
